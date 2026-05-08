@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",
+    "build:vercel": "next build",
     "db:migrate": "prisma migrate deploy",
     "start": "node .next/standalone/server.js",
     "worker:dev": "tsx workers/server.ts",

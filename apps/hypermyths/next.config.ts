@@ -77,8 +77,10 @@ const nextConfig: NextConfig = {
     "@hypermyths/visuals",
   ],
   images: {},
-  // Railway Docker optimization
-  output: "standalone",
+  // Railway Docker optimization (disabled on Vercel so onBuildComplete doesn't crash)
+  output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,
+  // Turbopack placeholder — required when webpack config exists in Next.js 16
+  turbopack: {},
   // Skip TS type check during build (Vercel 2-core timeout workaround)
   // Type checking still runs in dev and CI
   typescript: {

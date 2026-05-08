@@ -2,6 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "installCommand": "npm install -g pnpm@10.11.0 && pnpm install --no-frozen-lockfile",
-  "buildCommand": "pnpm --filter hypercinema build",
+  "buildCommand": "NODE_OPTIONS='--max-old-space-size=4096' pnpm --filter hypercinema build",
   "outputDirectory": "apps/hypermyths/.next"
 }
