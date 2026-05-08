@@ -36,23 +36,23 @@ const monoFont = Fragment_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "HyperMyths Studio",
+  title: "HyperMyths Terminal",
   description:
-    "Create cinematic AI trailers, private multi-act films, and live social-first video experiences.",
+    "One terminal to operate video, intelligence, ads, research, predictions, commands, and local trade intents.",
   icons: {
-    icon: "/icon.png",  // Primary favicon from public folder
+    icon: "/icon.png",
     shortcut: "/icon.png",
     apple: "/icon.png",
   },
   openGraph: {
-    title: "HyperMyths Studio",
+    title: "HyperMyths Terminal",
     description:
-      "Create cinematic AI trailers, private multi-act films, and live social-first video experiences.",
-    siteName: "HyperMyths",
+      "One terminal to operate video, intelligence, ads, research, predictions, commands, and local trade intents.",
+    siteName: "HyperMyths Terminal",
     images: [
       {
         url: "/logo.png",
-        alt: "HyperMyths",
+        alt: "HyperMyths Terminal",
       },
     ],
   },

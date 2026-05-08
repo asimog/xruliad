@@ -67,6 +67,55 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  apps/hashmyth:
+    dependencies:
+      '@hypermyths/fonts':
+        specifier: workspace:*
+        version: link:../../packages/fonts
+      '@hypermyths/hashmyth-video':
+        specifier: workspace:*
+        version: link:../../packages/hashmyth-video
+      '@hypermyths/music-orb':
+        specifier: workspace:*
+        version: link:../../packages/music-orb
+      '@hypermyths/product-api':
+        specifier: workspace:*
+        version: link:../../packages/product-api
+      '@hypermyths/theme':
+        specifier: workspace:*
+        version: link:../../packages/theme
+      '@hypermyths/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@hypermyths/unified-feed':
+        specifier: workspace:*
+        version: link:../../packages/unified-feed
+      '@hypermyths/visuals':
+        specifier: workspace:*
+        version: link:../../packages/visuals
+      next:
+        specifier: 16.1.6
+        version: 16.1.6(@babel/core@7.29.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      react:
+        specifier: 19.2.3
+        version: 19.2.3
+      react-dom:
+        specifier: 19.2.3
+        version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@types/node':
+        specifier: ^20.19.25
+        version: 20.19.39
+      '@types/react':
+        specifier: ^19.2.7
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.14)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   apps/hyperkaon:
     dependencies:
       '@hypermyths/fonts':
@@ -588,6 +637,34 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  packages/admin:
+    dependencies:
+      '@hypermyths/product-api':
+        specifier: workspace:*
+        version: link:../product-api
+      '@hypermyths/theme':
+        specifier: workspace:*
+        version: link:../theme
+      '@hypermyths/unified-feed':
+        specifier: workspace:*
+        version: link:../unified-feed
+      react:
+        specifier: ^19.0
+        version: 19.2.3
+    devDependencies:
+      '@types/node':
+        specifier: ^20.19.25
+        version: 20.19.39
+      '@types/react':
+        specifier: ^19.2.7
+        version: 19.2.14
+      tsx:
+        specifier: ^4.20.6
+        version: 4.21.0
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   packages/ads:
     devDependencies:
       '@types/node':
@@ -912,6 +989,9 @@ importers:
       '@hypermyths/intelligence':
         specifier: workspace:*
         version: link:../intelligence
+      '@hypermyths/theme':
+        specifier: workspace:*
+        version: link:../theme
       '@hypermyths/types':
         specifier: workspace:*
         version: link:../types
@@ -1545,12 +1625,42 @@ importers:
       '@hypermyths/byok':
         specifier: workspace:*
         version: link:../../packages/byok
+      '@hypermyths/command-protocol':
+        specifier: workspace:*
+        version: link:../../packages/command-protocol
+      '@hypermyths/hashmyth-video':
+        specifier: workspace:*
+        version: link:../../packages/hashmyth-video
+      '@hypermyths/local-trading':
+        specifier: workspace:*
+        version: link:../../packages/local-trading
       '@hypermyths/openrouter':
         specifier: workspace:*
         version: link:../../packages/openrouter
+      '@hypermyths/platform-payments':
+        specifier: workspace:*
+        version: link:../../packages/platform-payments
+      '@hypermyths/product-api':
+        specifier: workspace:*
+        version: link:../../packages/product-api
       '@hypermyths/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime
+      '@hypermyths/theme':
+        specifier: workspace:*
+        version: link:../../packages/theme
+      '@hypermyths/thesis-engine':
+        specifier: workspace:*
+        version: link:../../packages/thesis-engine
+      '@hypermyths/unified-feed':
+        specifier: workspace:*
+        version: link:../../packages/unified-feed
+      '@hypermyths/user-local-payments':
+        specifier: workspace:*
+        version: link:../../packages/user-local-payments
+      fastify:
+        specifier: ^5.6.2
+        version: 5.8.5
     devDependencies:
       '@types/node':
         specifier: ^20.19.25
@@ -14176,7 +14286,7 @@ snapshots:
       debug: 4.4.3
       invariant: 2.2.4
       metro: 0.84.4(bufferutil@4.1.0)(utf-8-validate@5.0.10)
-      metro-config: 0.84.4(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+      metro-config: 0.84.4(bufferutil@4.1.0)(utf-8-validate@6.0.6)
       metro-core: 0.84.4
       semver: 7.7.4
     transitivePeerDependencies:
@@ -23162,22 +23272,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  metro-config@0.84.4(bufferutil@4.1.0)(utf-8-validate@5.0.10):
-    dependencies:
-      connect: 3.7.0
-      flow-enums-runtime: 0.0.6
-      jest-validate: 29.7.0
-      metro: 0.84.4(bufferutil@4.1.0)(utf-8-validate@5.0.10)
-      metro-cache: 0.84.4
-      metro-core: 0.84.4
-      metro-runtime: 0.84.4
-      yaml: 2.8.4
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
-    optional: true
-
   metro-config@0.84.4(bufferutil@4.1.0)(utf-8-validate@6.0.6):
     dependencies:
       connect: 3.7.0
@@ -23329,7 +23423,7 @@ snapshots:
       metro-babel-transformer: 0.84.4
       metro-cache: 0.84.4
       metro-cache-key: 0.84.4
-      metro-config: 0.84.4(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+      metro-config: 0.84.4(bufferutil@4.1.0)(utf-8-validate@6.0.6)
       metro-core: 0.84.4
       metro-file-map: 0.84.4
       metro-resolver: 0.84.4

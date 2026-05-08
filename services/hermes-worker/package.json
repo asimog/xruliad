@@ -1,1 +1,34 @@
-{"name":"@hypermyths/hermes-worker","version":"0.1.0","private":true,"type":"module","scripts":{"build":"tsc -p tsconfig.json","lint":"tsc -p tsconfig.json --noEmit","typecheck":"tsc -p tsconfig.json --noEmit","start":"tsx src/index.ts"},"dependencies":{"@hypermyths/belief-engine":"workspace:*","@hypermyths/openrouter":"workspace:*","@hypermyths/byok":"workspace:*","@hypermyths/runtime":"workspace:*"},"devDependencies":{"@types/node":"^20.19.25","typescript":"^5.9.3","tsx":"^4.20.6"}}
+{
+  "name": "@hypermyths/hermes-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "tsx src/index.ts",
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "@hypermyths/belief-engine": "workspace:*",
+    "@hypermyths/openrouter": "workspace:*",
+    "@hypermyths/byok": "workspace:*",
+    "@hypermyths/runtime": "workspace:*",
+    "@hypermyths/theme": "workspace:*",
+    "@hypermyths/product-api": "workspace:*",
+    "@hypermyths/unified-feed": "workspace:*",
+    "@hypermyths/hashmyth-video": "workspace:*",
+    "@hypermyths/platform-payments": "workspace:*",
+    "@hypermyths/user-local-payments": "workspace:*",
+    "@hypermyths/local-trading": "workspace:*",
+    "@hypermyths/command-protocol": "workspace:*",
+    "@hypermyths/thesis-engine": "workspace:*",
+    "fastify": "^5.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.25",
+    "typescript": "^5.9.3",
+    "tsx": "^4.20.6"
+  }
+}

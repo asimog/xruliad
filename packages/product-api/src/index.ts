@@ -33,12 +33,80 @@ export type AgentExecutionResult = { status: "prepared" | "executed" | "local_on
 export type ProductApiError = { error: string; code: string };
 export type ProductRoutePlan = { productId: ProductId; href: string; runtime: RuntimeSupport; localOnly?: boolean };
 
-const defaultTools: AgentTool[] = [
-  { id: "agent.run", label: "Run agent tool", permission: "agent", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] },
-  { id: "jobs.create", label: "Create job", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
-  { id: "quote", label: "Quote action", permission: "public", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] },
-  { id: "execute.prepare", label: "Prepare execution", permission: "authenticated", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["trading_execution"] }
-];
+function toolsForProduct(productId: ProductId): AgentTool[] {
+  switch (productId) {
+    case "hypermyths":
+      return [
+        { id: "terminal.chat", label: "Terminal chat", permission: "public", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] },
+        { id: "terminal.route", label: "Route to product", permission: "agent", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] },
+        { id: "terminal.runWorkflow", label: "Run workflow", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "terminal.getJobs", label: "Get terminal jobs", permission: "authenticated", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] },
+        { id: "terminal.getApprovals", label: "Get pending approvals", permission: "admin", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] },
+        { id: "terminal.approveAction", label: "Approve action", permission: "admin", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] },
+        { id: "terminal.rejectAction", label: "Reject action", permission: "admin", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] },
+        { id: "execute.prepare", label: "Prepare execution", permission: "authenticated", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["trading_execution"] }
+      ];
+    case "hashmyth":
+      return [
+        { id: "video.script", label: "Generate video script", permission: "public", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] },
+        { id: "video.generate", label: "Generate video", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "video.fromToken", label: "Video from token", permission: "public", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "video.fromWallet", label: "Video from wallet", permission: "public", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "video.fromXProfile", label: "Video from X profile", permission: "public", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "video.fromMarketThesis", label: "Video from market thesis", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "video.fromResearchReport", label: "Video from research report", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "video.fromSimulation", label: "Video from simulation", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "video.fromAdCampaign", label: "Video from ad campaign", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "agent.run", label: "Run agent tool", permission: "agent", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] }
+      ];
+    case "polymyths":
+      return [
+        { id: "thesis.create", label: "Create thesis", permission: "authenticated", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] },
+        { id: "prediction.analyze", label: "Analyze prediction", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "market.simulate", label: "Simulate market", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "polymarket.discover", label: "Discover markets", permission: "public", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] },
+        { id: "strategy.prepare", label: "Prepare strategy", permission: "authenticated", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] },
+        { id: "scenario.create", label: "Create scenario", permission: "authenticated", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] },
+        { id: "agent.run", label: "Run agent tool", permission: "agent", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] }
+      ];
+    case "cancerhawk":
+      return [
+        { id: "research.quest.create", label: "Create research quest", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "dataset.generate", label: "Generate synthetic dataset", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "literature.analyze", label: "Analyze literature", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "hypothesis.create", label: "Create hypothesis", permission: "authenticated", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] },
+        { id: "contributor.score", label: "Score contributor", permission: "authenticated", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] },
+        { id: "report.create", label: "Create report", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "agent.run", label: "Run agent tool", permission: "agent", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] }
+      ];
+    case "hyperkaon":
+      return [
+        { id: "simulation.create", label: "Create simulation", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "physics.quest.create", label: "Create physics quest", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "benchmark.generate", label: "Generate benchmark", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "result.analyze", label: "Analyze results", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "compute.quest.create", label: "Create compute quest", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "agent.run", label: "Run agent tool", permission: "agent", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] }
+      ];
+    case "hypertian":
+      return [
+        { id: "ad.campaign.create", label: "Create ad campaign", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "stream.overlay.create", label: "Create stream overlay", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "attention.analyze", label: "Analyze attention", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "creator.report", label: "Creator report", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "advertiser.quote", label: "Advertiser quote", permission: "public", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] },
+        { id: "campaign.optimize", label: "Optimize campaign", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "display.ad", label: "Display ad", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "agent.run", label: "Run agent tool", permission: "agent", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] }
+      ];
+    default:
+      return [
+        { id: "agent.run", label: "Run agent tool", permission: "agent", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] },
+        { id: "jobs.create", label: "Create job", permission: "authenticated", cost: { paymentPlane: "platform", requiresQuote: true }, restrictions: ["none"] },
+        { id: "quote", label: "Quote action", permission: "public", cost: { paymentPlane: "free", requiresQuote: false }, restrictions: ["none"] }
+      ];
+  }
+}
 
 export function productHealth(productId: ProductId): ProductApiHealth {
   return { ok: true, productId, schemaVersion: "product-api.v1", timestamp: new Date().toISOString() };
@@ -46,13 +114,14 @@ export function productHealth(productId: ProductId): ProductApiHealth {
 
 export function productCapabilities(productId: ProductId): ProductApiCapabilities {
   const product = getProduct(productId);
+  const tools = toolsForProduct(productId);
   return {
     productId,
     productName: product.displayName,
     domain: product.domain,
     runtimeSupport: productId === "hypermyths" ? ["web", "local", "hybrid"] : ["web", "hybrid"],
-    availableTools: defaultTools.map((tool) => tool.id),
-    agentTools: defaultTools,
+    availableTools: tools.map((tool) => tool.id),
+    agentTools: tools,
     requiredAuth: ["public", "authenticated", "agent"],
     requiredEnvVars: ["NEXT_PUBLIC_PRODUCT_ID"],
     platformPayShSupport: true,

@@ -17,7 +17,7 @@ export default function DemoPage() {
   const quote = quotePlatformAction({ productId: "hypermyths", action: "premium_intelligence", estimatedCostUsd: 0 });
   const thesis = createThesis({ productId: "polymyths", type: "market", title: "Hackathon Market Thesis", claim: "Public thesis can run on the cheapest safe route; private strategy remains local.", visibility: "public" });
   const sealed = sealStrategyRecord({ plaintext: thesis.claim, publicSummary: thesis.title });
-  const video = prepareHashMythVideo({ title: thesis.title, thesis: thesis.claim, source: "thesis" });
+  const video = prepareHashMythVideo({ title: thesis.title, sourcePrompt: thesis.claim, source: "market_thesis" });
   const ad = prepareAdCampaign({ thesisId: thesis.id, title: "Transparent thesis ad", sponsor: "HyperMyths demo", concept: "Sponsor metadata remains visible." });
   const tradeIntent = createExecutionIntent({ thesisId: thesis.id, venue: "paper", asset: thesis.title, side: "simulate", rationale: "Prepared only; local execution gateway required." });
   const encrypt = encryptPayloadLocalFallback(thesis.claim);

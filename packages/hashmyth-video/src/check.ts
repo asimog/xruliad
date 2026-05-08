@@ -1,2 +1,2 @@
 import { prepareHashMythVideo } from "./index";
-console.log(JSON.stringify(prepareHashMythVideo({ title: "check", thesis: "check", source: "thesis" }), null, 2));
+console.log(JSON.stringify(prepareHashMythVideo({ title: "check", sourcePrompt: "check prompt", source: "prompt" }), null, 2));

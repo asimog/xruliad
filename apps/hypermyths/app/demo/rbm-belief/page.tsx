@@ -26,7 +26,7 @@ export default function RbmBeliefDemoPage() {
   const score = computeBeliefScore(b5, 2, 1, 4);
   const frame = createBeliefFrame({ belief: b5, frameIndex: 4, updateType: "payment_executed" });
 
-  const videoArtifact = prepareHashMythVideo({ title: thesis.title, thesis: thesis.claim, source: "thesis" });
+  const videoArtifact = prepareHashMythVideo({ title: thesis.title, sourcePrompt: thesis.claim, source: "market_thesis" });
   const adArtifact = prepareAdCampaign({ thesisId: thesis.id, title: "Transparent thesis ad", sponsor: "HyperMyths demo", concept: "Sponsor metadata visible." });
   const tradeIntent = createExecutionIntent({ thesisId: thesis.id, venue: "paper", asset: thesis.title, side: "simulate", rationale: "Prepared only — local execution gateway required." });
   const encrypt = encryptPayloadLocalFallback(thesis.claim);
@@ -52,7 +52,7 @@ export default function RbmBeliefDemoPage() {
     inference: { model: model.model, estimatedCost: model.estimatedCost, update: infUpdate.safeSummary },
     payment: { action: payQuote.action, estimatedCostUsd: payQuote.estimatedCostUsd, currency: payQuote.currency, publicReceipt: payQuote.publicReceipt, update: payUpdate.safeSummary },
     artifacts: {
-      hashmythVideo: { id: videoArtifact.id, title: videoArtifact.title },
+      hashmythVideo: { id: videoArtifact.id, title: videoArtifact.script.title },
       hypertianAd: { id: adArtifact.id, sponsor: adArtifact.sponsor },
       localTradeIntent: { id: tradeIntent.id, mode: tradeIntent.mode, liveExecutionFromWeb: false },
       encrypt: { sealed: Boolean(encrypt.id) },

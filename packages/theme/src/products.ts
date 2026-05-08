@@ -1,4 +1,4 @@
-export type ProductId = "hypermyths" | "hypertian" | "cancerhawk" | "hyperkaon" | "polymyths";
+export type ProductId = "hypermyths" | "hypertian" | "cancerhawk" | "hyperkaon" | "polymyths" | "hashmyth";
 
 export type ProductToken = {
   id: ProductId;
@@ -21,22 +21,24 @@ export type ProductToken = {
 export const products: Record<ProductId, ProductToken> = {
   hypermyths: {
     id: "hypermyths",
-    displayName: "HyperMyths",
+    displayName: "HyperMyths Terminal",
     domain: "hypermyths.com",
-    shortDescription: "Gateway, token scanner, AI media engine, wallet and profile intelligence.",
-    role: "Main ecosystem gateway and market intelligence/media hub.",
+    shortDescription: "One terminal to operate video, intelligence, ads, research, predictions, commands, and local trade intents.",
+    role: "Terminal / command center / route planner.",
     accent: "#49c5b6",
     accentSoft: "rgba(73,197,182,0.18)",
     backgroundVariant: "hypermyths",
-    primaryCta: { label: "Open Studio", href: "/media" },
+    primaryCta: { label: "Open Terminal", href: "/terminal" },
     navLinks: [
-      { label: "Media", href: "/media" },
-      { label: "Scanner", href: "/chat" },
+      { label: "Terminal", href: "/terminal" },
       { label: "Feed", href: "/feed" },
-      { label: "Music", href: "/music" }
+      { label: "Routes", href: "/routes" },
+      { label: "Theses", href: "/theses" },
+      { label: "Commands", href: "/commands" },
+      { label: "Admin", href: "/admin" }
     ],
     metadata: {
-      tone: ["mythic", "crypto-native", "market intelligence", "media engine"],
+      tone: ["mythic", "crypto-native", "market intelligence", "terminal"],
       marketDoor: "attention, intelligence, research, simulation, and computation"
     }
   },
@@ -123,6 +125,28 @@ export const products: Record<ProductId, ProductToken> = {
     metadata: {
       tone: ["intelligence", "prediction", "scenario analysis", "finance"],
       marketDoor: "prediction and intelligence market"
+    }
+  },
+  hashmyth: {
+    id: "hashmyth",
+    displayName: "HashMyth",
+    domain: "hashmyth.com",
+    shortDescription: "Video generation from tokens, wallets, X profiles, market theses, research reports, simulations, and ads.",
+    role: "Video generation engine.",
+    accent: "#a78bfa",
+    accentSoft: "rgba(167,139,250,0.18)",
+    backgroundVariant: "hashmyth",
+    primaryCta: { label: "Create Video", href: "/create" },
+    navLinks: [
+      { label: "Create", href: "/create" },
+      { label: "Jobs", href: "/jobs" },
+      { label: "Templates", href: "/templates" },
+      { label: "Feed", href: "/feed" },
+      { label: "API Docs", href: "/api-docs" }
+    ],
+    metadata: {
+      tone: ["creative", "video", "AI-generated", "multimedia"],
+      marketDoor: "video generation market"
     }
   }
 };
