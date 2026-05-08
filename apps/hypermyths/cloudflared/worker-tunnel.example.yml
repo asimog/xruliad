@@ -1,0 +1,7 @@
+tunnel: hypermyths-worker
+credentials-file: /etc/cloudflared/hypermyths-worker.json
+
+ingress:
+  - hostname: worker.hypermyths.com
+    service: http://localhost:8080
+  - service: http_status:404

@@ -1,0 +1,394 @@
+import { buildContinuationPrompt, buildStoryCards } from "@/lib/cinema/storyCards";
+import { buildAudioDirectionLine, inferVoiceRequested } from "@/lib/cinema/audioPolicy";
+import {
+  resolveSourceReferenceSummary,
+  sourceReferenceLabel,
+} from "@/lib/cinema/sourceReference";
+import { getTokenVideoStylePreset } from "@/lib/memecoins/styles";
+import { JobDocument, ReportDocument, WalletStory } from "@/lib/types/domain";
+
+function trimOrNull(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
+function requestKindLabel(requestKind: JobDocument["requestKind"]): string {
+  switch (requestKind) {
+    case "bedtime_story":
+      return "bedtime story";
+    case "music_video":
+      return "music video";
+    case "scene_recreation":
+      return "scene recreation";
+    case "generic_cinema":
+    default:
+      return "cinematic short";
+  }
+}
+
+function audioDirection(job: JobDocument): string {
+  return buildAudioDirectionLine({
+    requestKind: job.requestKind,
+    requestedPrompt: job.requestedPrompt,
+    subjectDescription: job.subjectDescription,
+    sourceTranscript: job.sourceTranscript,
+    audioEnabled: job.audioEnabled,
+  });
+}
+
+function buildStoryBeats(input: {
+  job: JobDocument;
+  storyCards: ReturnType<typeof buildStoryCards>;
+}): string[] {
+  if (input.storyCards.length) {
+    return input.storyCards.map((card) => card.teaser);
+  }
+
+  if (input.job.requestKind === "bedtime_story") {
+    return [
+      "Open in a calm, safe world with soft wonder and no sudden tension spikes.",
+      "Introduce the main characters and the bedtime promise they are trying to keep.",
+      "Let the middle feel magical but reassuring, never frantic or overstimulating.",
+      "Close with comfort, resolution, and an unmistakable invitation to rest.",
+    ];
+  }
+
+  if (input.job.requestKind === "music_video") {
+    return [
+      "Open on the track identity and the hook that defines the whole cut.",
+      "Let the middle ride the beat, the choreography, or the performance details.",
+      "Escalate into a chorus-sized visual turn that feels designed for replay.",
+      "Close on a final frame that lands like a poster, playlist cover, or tour card.",
+    ];
+  }
+
+  if (input.job.requestKind === "scene_recreation") {
+    return [
+      "Open by naming the source scene and the emotional promise it carries.",
+      "Preserve the dialogue spine and the blocking rhythm while reshaping the skin.",
+      "Escalate into a trailer-grade reinterpretation that stays faithful but sharper.",
+      "Close on a final frame that feels like a remembered scene rebuilt at higher voltage.",
+    ];
+  }
+
+  return [
+    "Establish the world, mood, and visual grammar before the action starts.",
+    "Introduce the characters, symbols, or references that define the story.",
+    "Escalate the brief into a cinematic middle with stronger motion and clearer stakes.",
+    "Land on a memorable closing image that feels designed to be replayed or shared.",
+  ];
+}
+
+function buildBehaviorPatterns(
+  job: JobDocument,
+  styleLabel: string,
+  sourceLabel: string | null,
+): string[] {
+  if (job.requestKind === "bedtime_story") {
+    return [
+      "Speech only appears when explicitly requested; otherwise the pacing stays quiet and cinematic.",
+      "Very soft cinematic underscore with warm visual continuity across scenes.",
+      sourceLabel
+        ? `A cited source still feeds the visual world, but the bedtime tone stays calm and non-literal.`
+        : null,
+      `Style reference stays anchored to ${styleLabel.toLowerCase()} while protecting a calm bedtime tone.`,
+    ].filter((item): item is string => Boolean(item));
+  }
+
+  if (job.requestKind === "music_video") {
+    return [
+      "Beat-aware pacing keeps the edit locked to the track, chorus, and refrains.",
+      "Lyrics or song notes steer the camera language more than any analytics spine.",
+      sourceLabel
+        ? `The source reference ${sourceLabel} remains visible in the emotional and visual logic of the cut.`
+        : null,
+      `Style reference stays anchored to ${styleLabel.toLowerCase()} while protecting a performance-film tone.`,
+    ].filter((item): item is string => Boolean(item));
+  }
+
+  if (job.requestKind === "scene_recreation") {
+    return [
+      "Dialogue cadence and blocking cues drive the reconstruction instead of wallet stats.",
+      "The source scene sets the spine; the remake can change the skin and scale.",
+      sourceLabel
+        ? `The source reference ${sourceLabel} must stay legible in the staging choices, not only in the brief text.`
+        : null,
+      `Style reference stays anchored to ${styleLabel.toLowerCase()} while protecting source-scene fidelity.`,
+    ].filter((item): item is string => Boolean(item));
+  }
+
+  return [
+    "Prompt-driven cinematic generation rather than token-analytics storytelling.",
+    inferVoiceRequested({
+      requestKind: job.requestKind,
+      requestedPrompt: job.requestedPrompt,
+      subjectDescription: job.subjectDescription,
+      sourceTranscript: job.sourceTranscript,
+      audioEnabled: job.audioEnabled,
+    })
+      ? "Character references and story notes can include voice only when explicitly requested."
+      : "Character references and story notes drive the shot design while the mix stays speech-free by default.",
+    sourceLabel
+      ? `Source intake is active: ${sourceLabel} is a primary visual and emotional reference, not a discarded link.`
+      : null,
+    `${audioDirection(job)} ${styleLabel} controls the visual finish.`,
+  ].filter((item): item is string => Boolean(item));
+}
+
+function buildFunObservations(job: JobDocument, sourceLabel: string | null): string[] {
+  if (job.requestKind === "bedtime_story") {
+    return [
+      "The bedtime mode keeps the pacing soft enough for end-of-day viewing.",
+      "Parents can paste a full story and let HyperMyths turn it into a narrated short.",
+      "Cinematic cues stay intentionally light so narration only leads when it is explicitly requested.",
+    ];
+  }
+
+  if (job.requestKind === "music_video") {
+    return [
+      "The track can behave like a trailer hook instead of a static audio bed.",
+      sourceLabel
+        ? `The source reference stays in play as a mood and iconography guide instead of disappearing after intake.`
+        : null,
+      "Verse, bridge, and chorus moments can all become visual story beats.",
+      "The cut can read like a tour poster that learned how to move.",
+    ].filter((item): item is string => Boolean(item));
+  }
+
+  if (job.requestKind === "scene_recreation") {
+    return [
+      "A remembered scene becomes a trailer-grade reinterpretation instead of a copy.",
+      "Dialogue, blocking, and emotional timing stay intact even when the skin changes.",
+      sourceLabel
+        ? `The source reference ${sourceLabel} becomes a staging reference rather than an afterthought.`
+        : null,
+      "The reconstruction can feel like a remake trailer that knows the source text deeply.",
+    ].filter((item): item is string => Boolean(item));
+  }
+
+  return [
+    "This mode treats prompts, characters, and lyrical notes as the primary source material.",
+    sourceLabel
+      ? `The source reference is explicitly carried into the scene plan instead of being ignored after job creation.`
+      : null,
+    "The story can be visual-only by default, then opt into sound or speech only when the brief calls for it.",
+    "The generator is not locked to memecoins, wallets, or chain metadata.",
+  ].filter((item): item is string => Boolean(item));
+}
+
+function buildMemorableMoments(job: JobDocument): string[] {
+  if (job.requestKind === "bedtime_story") {
+    return [
+      "The pasted bedtime story becomes the spine of the final narrated short.",
+      "Each scene is allowed to stay gentle, readable, and safe for winding down.",
+    ];
+  }
+
+  if (job.requestKind === "music_video") {
+    return [
+      "The chorus can land as a hero shot that feels built for replay.",
+      "A well-timed cut can make the song feel bigger than the room around it.",
+    ];
+  }
+
+  if (job.requestKind === "scene_recreation") {
+    return [
+      "The remake can land like a scene you know, rebuilt at higher voltage.",
+      "A preserved line read can carry the whole trailer spine without overexplaining it.",
+    ];
+  }
+
+  return [
+    "Character references can steer the visual identity without forcing a rigid script.",
+    "Story notes and rhythm hints shape the pacing even when sound stays off.",
+  ];
+}
+
+function buildNarrativeSummary(
+  job: JobDocument,
+  sourceLabel: string | null,
+): string {
+  const subject = trimOrNull(job.subjectName) ?? "Untitled brief";
+  const description =
+    trimOrNull(job.subjectDescription) ??
+    (job.requestKind === "bedtime_story"
+      ? "A parent-supplied story becomes a calm narrated short."
+      : job.requestKind === "music_video"
+        ? "A track or song concept becomes a trailer-first music video."
+        : job.requestKind === "scene_recreation"
+          ? "A source scene becomes a trailer-grade recreation."
+          : "A prompt-led cinematic brief becomes a short-form visual story.");
+  const requested = trimOrNull(job.requestedPrompt);
+
+  return [
+    `${subject} is staged as a ${job.videoSeconds}-second ${requestKindLabel(job.requestKind)}.`,
+    description,
+    sourceLabel ? `Primary source reference: ${sourceLabel}.` : null,
+    audioDirection(job),
+    requested ? `Creative direction: ${requested}` : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+export async function buildPromptVideoArtifacts(input: {
+  job: JobDocument;
+}): Promise<{
+  report: Omit<ReportDocument, "summary" | "downloadUrl">;
+  story: WalletStory;
+}> {
+  const style = getTokenVideoStylePreset(input.job.stylePreset);
+  const sourceReference = await resolveSourceReferenceSummary({
+    requestKind: input.job.requestKind,
+    sourceMediaUrl: input.job.sourceMediaUrl,
+    sourceEmbedUrl: input.job.sourceEmbedUrl,
+    sourceMediaProvider: input.job.sourceMediaProvider,
+    sourceTranscript: input.job.sourceTranscript,
+    subjectDescription: input.job.subjectDescription,
+  });
+  const sourceLabel = sourceReferenceLabel(sourceReference);
+  const subjectName =
+    trimOrNull(input.job.subjectName) ??
+    (input.job.requestKind === "bedtime_story"
+      ? "Bedtime Story"
+      : input.job.requestKind === "music_video"
+        ? "Music Video Brief"
+        : input.job.requestKind === "scene_recreation"
+          ? "Scene Recreation Brief"
+          : "HashMyth Brief");
+  const subjectDescription = trimOrNull(input.job.subjectDescription);
+  const narrativeSummary = buildNarrativeSummary(input.job, sourceLabel);
+  const storyCards = buildStoryCards({
+    requestKind: input.job.requestKind,
+    subjectName,
+    subjectDescription,
+    requestedPrompt: trimOrNull(input.job.requestedPrompt),
+    sourceTranscript: input.job.sourceTranscript,
+    sourceReferenceLabel: sourceLabel,
+    storyBeats: null,
+    audioEnabled:
+      typeof input.job.audioEnabled === "boolean"
+        ? input.job.audioEnabled
+        : input.job.requestKind === "bedtime_story" ||
+            input.job.requestKind === "music_video" ||
+            input.job.requestKind === "scene_recreation",
+  });
+  const storyBeats = buildStoryBeats({
+    job: input.job,
+    storyCards,
+  });
+  const continuationPrompt = buildContinuationPrompt({
+    requestKind: input.job.requestKind,
+    subjectName,
+    subjectDescription,
+    requestedPrompt: trimOrNull(input.job.requestedPrompt),
+    sourceTranscript: input.job.sourceTranscript,
+    sourceReferenceLabel: sourceLabel,
+    storyBeats,
+  });
+  const behaviorPatterns = buildBehaviorPatterns(input.job, style.label, sourceLabel);
+  const funObservations = buildFunObservations(input.job, sourceLabel);
+  const memorableMoments = buildMemorableMoments(input.job);
+
+  const story: WalletStory = {
+    wallet: input.job.wallet,
+    storyKind: input.job.requestKind,
+    pricingMode: input.job.pricingMode,
+    visibility: input.job.visibility,
+    experience: input.job.experience,
+    subjectName,
+    subjectDescription,
+    sourceMediaUrl: input.job.sourceMediaUrl,
+    sourceEmbedUrl: input.job.sourceEmbedUrl,
+    sourceMediaProvider: input.job.sourceMediaProvider,
+    sourceTranscript: input.job.sourceTranscript,
+    sourceReference,
+    stylePreset: style.id,
+    styleLabel: style.label,
+    requestedPrompt: trimOrNull(input.job.requestedPrompt),
+    audioEnabled:
+      typeof input.job.audioEnabled === "boolean"
+        ? input.job.audioEnabled
+        : input.job.requestKind === "bedtime_story" ||
+            input.job.requestKind === "music_video" ||
+            input.job.requestKind === "scene_recreation",
+    storyCards,
+    continuationPrompt,
+    rangeDays: input.job.rangeDays,
+    packageType: input.job.packageType,
+    durationSeconds: input.job.videoSeconds,
+    analytics: {
+      pumpTokensTraded: 0,
+      buyCount: 0,
+      sellCount: 0,
+      solSpent: 0,
+      solReceived: 0,
+      estimatedPnlSol: 0,
+      bestTrade: "Story brief established",
+      worstTrade: "No market tape involved",
+      styleClassification: style.label,
+    },
+    timeline: [],
+    walletPersonality:
+      input.job.requestKind === "bedtime_story"
+        ? "Gentle bedtime narrator"
+        : input.job.requestKind === "music_video"
+          ? "Music video director"
+          : input.job.requestKind === "scene_recreation"
+            ? "Scene recreation editor"
+            : "Prompt-led story architect",
+    behaviorPatterns,
+    memorableMoments,
+    funObservations,
+    narrativeSummary,
+    storyBeats,
+    tokenMetadata: [],
+  };
+
+  const report: Omit<ReportDocument, "summary" | "downloadUrl"> = {
+    jobId: input.job.jobId,
+    wallet: input.job.wallet,
+    rangeDays: input.job.rangeDays,
+    subjectKind: input.job.requestKind,
+    pricingMode: input.job.pricingMode,
+    visibility: input.job.visibility,
+    experience: input.job.experience,
+    moderationStatus: input.job.moderationStatus,
+    creatorId: input.job.creatorId ?? null,
+    creatorEmail: input.job.creatorEmail ?? null,
+    subjectName,
+    subjectDescription,
+    sourceMediaUrl: input.job.sourceMediaUrl,
+    sourceEmbedUrl: input.job.sourceEmbedUrl,
+    sourceMediaProvider: input.job.sourceMediaProvider,
+    sourceTranscript: input.job.sourceTranscript,
+    sourceReference,
+    stylePreset: style.id,
+    styleLabel: style.label,
+    durationSeconds: input.job.videoSeconds,
+    audioEnabled: story.audioEnabled,
+    storyCards,
+    continuationPrompt,
+    pumpTokensTraded: 0,
+    buyCount: 0,
+    sellCount: 0,
+    solSpent: 0,
+    solReceived: 0,
+    estimatedPnlSol: 0,
+    bestTrade: "Story brief established",
+    worstTrade: "No market tape involved",
+    styleClassification: style.label,
+    timeline: [],
+    walletPersonality: story.walletPersonality,
+    behaviorPatterns,
+    memorableMoments,
+    funObservations,
+    narrativeSummary,
+    storyBeats,
+  };
+
+  return {
+    report,
+    story,
+  };
+}

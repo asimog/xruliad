@@ -1,0 +1,15 @@
+# Vercel builds the Next.js shell. Keep vendored/reference repos and local
+# caches out of the upload, but include pages/, src/, public/, results/, and
+# package metadata.
+.git
+.next
+node_modules
+hermes-agent
+G0DM0D3
+MiroShark
+pretext
+.pytest_cache
+.env
+.env.*
+__pycache__
+*.pyc

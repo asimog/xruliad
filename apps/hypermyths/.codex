@@ -1,0 +1,150 @@
+# HyperMyths Codex Brief
+
+HyperMyths is a free AI video generation platform. Users submit an X profile, a token contract address, or a creative prompt and receive a short AI-rendered cinematic film. There are no payments. The product is free, rate-limited, with a Privy-authenticated premium tier at `/creator`.
+
+---
+
+## Architecture Model
+
+Think in separate boxes. Keep them clean:
+
+```
+UI (React/Next.js)
+  └── Job Intake (API routes — create, public-create, retry)
+        └── Persistence (Prisma/PostgreSQL — JobDispatchOutbox pattern)
+              └── Worker Dispatch (process-job.ts)
+                    └── Script Generation (lib/ai/ — G0DM0D3 / OpenRouter)
+                          └── Video Render (lib/video/dispatcher.ts — provider chain)
+                                └── Storage (lib/storage/s3.ts — Supabase S3)
+```
+
+- Do not mix public routes, private routes, and ops routes.
+- Public tier: `/media` + `/api/video/public-create` — rate-limited, no auth, 2-act cinema.
+- Premium tier: `/creator` + `/api/video/create` — Privy auth, 3–10 act engine.
+- Worker tier: `/api/worker/trigger` — token-auth, Railway only.
+
+---
+
+## Implementation Rules
+
+- Make the **smallest coherent edit** that satisfies the requirement.
+- Use subagents for repo mapping, interruption tracing, and boundary review when the task spans multiple boxes.
+- Resume interrupted work before inventing net-new scope.
+- Prefer box-scoped patches over wide refactors.
+- When a capability exists in config, wire it through: request validation → persistence → worker dispatch → render contract.
+- Never revert user edits you did not make.
+- Never render text in videos — no captions, no subtitles, no on-screen labels.
+
+---
+
+## Current Product Modes (Cinema Experiences)
+
+| Experience | Description | Acts |
+|-----------|-------------|------|
+| `funcinema` | Premium multi-act engine (prompt/X/token) | 3–10 |
+| `two_act_cinema` | Classic 2-act cinema (free tier) | 2 |
+| `mythx` | X profile biography (tweet-driven) | 3–10 |
+| `trenchcinema` | Memecoin/token trailer | 3–10 |
+| `familycinema` | Family-safe cinema mode | 3–10 |
+| `musicvideo` | Music video generation | variable |
+| `recreator` | Scene recreation | variable |
+| `hyperm` | HyperM experience | variable |
+
+---
+
+## Video Provider Chain
+
+Priority (configurable via `VIDEO_PROVIDER_PRIORITY` env):
+
+1. OpenRouter → `bytedance/seedance-1-5-pro`
+2. xAI → `grok-imagine-video`
+3. Fal → HuggingFace Wan2.1 via fal-ai
+4. Replicate
+5. HuggingFace (direct)
+
+All providers accept `imageUrl` for image-to-video. DexScreener token images flow through automatically for contract address jobs.
+
+---
+
+## Prompt System
+
+Key prompt hooks — always verify these paths when changing prompt logic:
+
+- `prompts/cinematic_prompt_template.md` — visual prompt template
+- `lib/ai/cinematic.ts` — script generation (`generateCinematicScript`)
+- `lib/ai/report.ts` — report/story generation
+- `workers/process-job.ts` — `buildMultiActTokenPrompt`, `buildMultiActVideoPrompt`
+- `lib/video/simple-prompt.ts` — `buildMultiActVideoPrompt`, `buildSingleClipVideoPrompt`
+
+When changing prompts: verify the OpenRouter path, the xAI path, and the HuggingFace fallback all still produce usable output.
+
+---
+
+## Role Ensemble (for creative judgment)
+
+- **Film critic** — judge emotional clarity, pacing, whether the trailer lands.
+- **Movie critic** — judge structure, originality, and payoff.
+- **Cinema artist** — control composition, color, camera movement, symbols, and sound direction.
+- **Fact checker** — no invented economics, no legal claims, no made-up market data. Token videos must be factually grounded in DexScreener metadata.
+
+---
+
+## Environment
+
+All env vars are Zod-validated in `lib/env.ts`. Always:
+
+- Add new vars to the schema AND to the `safeParse({...})` input object.
+- Use `trimOptionalEnvValue()` for optional vars — Railway sets empty strings that break validation.
+- Never call `process.env.VAR` directly in application code — use `getEnv().VAR_NAME`.
+
+---
+
+## Verification Checklist
+
+After any patch:
+
+- [ ] `npm run env:check` passes
+- [ ] `npm test` passes (or targeted test for the changed area)
+- [ ] `npm run secrets:scan` passes if `.env*` was touched
+- [ ] If prompts changed: verify OpenRouter and xAI fallback paths
+- [ ] If schema changed: create migration with `npx prisma migrate dev --name name`
+- [ ] If API route changed: confirm response shape matches client expectations
+
+---
+
+## What Was Removed — Do Not Re-Add
+
+- Firebase / Firestore / Firebase Storage
+- Solana payment flows, dedicated payment addresses
+- x402 micropayment protocol
+- Helius SDK
+- QR code payment UI
+- Admin cockpit UI
+- Discount/promo code UI (schema tables kept for historical data)
+
+---
+
+## Key Files
+
+| Purpose | File |
+|---------|------|
+| Env schema | `lib/env.ts` |
+| Domain types | `lib/types/domain.ts` |
+| Job repository | `lib/jobs/repository.ts` |
+| Video dispatcher | `lib/video/dispatcher.ts` |
+| Multi-act engine | `workers/multi-act-pipeline.ts` |
+| Job orchestrator | `workers/process-job.ts` |
+| Privy auth | `lib/auth/privy-server.ts` |
+| DexScreener | `lib/memecoins/metadata.ts` |
+| S3 storage | `lib/storage/s3.ts` |
+| Studio form | `components/video/VideoStudioForm.tsx` |
+
+---
+
+## Railway Project
+
+- Project ID: `31e10f0f-b2fc-4b4d-bb0d-85d98bba5b93`
+- Worker service: Docker, port 8080
+- Video service: Docker, port 8090
+- Godmode (G0DM0D3): Docker, port 7860
+- PostgreSQL: managed, auto-injected `DATABASE_URL`

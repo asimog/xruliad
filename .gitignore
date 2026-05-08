@@ -1,0 +1,53 @@
+# dependencies
+node_modules
+.pnpm-store
+
+# env and secrets
+.env
+.env.*
+!.env.example
+*.ENV
+LOCAL.ENV
+RAILWAY.ENV
+VERCEL.ENV
+RAILWAY-SECRETS-IMPORT.env
+RAILWAY-WORKER-IMPORT.env
+.wrk
+.wrktkn
+
+# builds and caches
+.next
+dist
+build
+coverage
+.turbo
+.vercel
+.railway
+.pytest_cache
+__pycache__
+*.tsbuildinfo
+
+# logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local data and generated secrets
+*.sqlite
+*.sqlite3
+*.db
+*.pem
+*.key
+.moto_instances
+.moto_launcher_state.json
+.moto_last_instance.json
+.moto_update_notice.json
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode
+.idea

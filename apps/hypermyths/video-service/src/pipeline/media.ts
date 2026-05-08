@@ -1,0 +1,297 @@
+// Media pipeline — download clips, concat, thumbnail, upload to S3
+import { promises as fs } from "fs";
+import os from "os";
+import path from "path";
+import { randomUUID } from "crypto";
+import { spawn } from "child_process";
+import { pathToFileURL } from "url";
+import { S3Client } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
+import { getVideoServiceEnv } from "../env";
+import { resolveRenderDimensions } from "./render-dimensions";
+
+let remotionServeUrlPromise: Promise<string> | null = null;
+
+/**
+ * Validate that a URL is safe to fetch (not SSRF).
+ * Blocks private IPs, localhost, and metadata endpoints.
+ */
+function isSafeUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return false;
+    }
+    const hostname = parsed.hostname.toLowerCase();
+    if (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "::1" ||
+      hostname === "0.0.0.0" ||
+      hostname.endsWith(".internal") ||
+      hostname.endsWith(".local") ||
+      hostname === "metadata.google.internal" ||
+      hostname === "169.254.169.254"
+    ) {
+      return false;
+    }
+    // Block private IP ranges
+    const octets = hostname.split(".").map(Number);
+    if (octets.length === 4) {
+      if (octets[0] === 10) return false;
+      if (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) return false;
+      if (octets[0] === 192 && octets[1] === 168) return false;
+      if (octets[0] === 127) return false;
+      if (octets[0] === 169 && octets[1] === 254) return false;
+      if (octets[0] === 0) return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Build ffmpeg concat manifest
+export function buildConcatManifest(paths: string[]): string {
+  return paths.map((p) => `file '${p.replace(/'/g, "'\\''")}'`).join("\n");
+}
+
+// Run a shell command — reject on non-zero exit
+function runCommand(
+  command: string,
+  args: string[],
+  cwd: string,
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      cwd,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    let stderr = "";
+    child.stderr.on("data", (chunk) => {
+      stderr += chunk.toString();
+    });
+    child.on("error", reject);
+    child.on("close", (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`${command} exited ${code}: ${stderr}`));
+    });
+  });
+}
+
+// Download a clip from URL or base64 data URI to disk
+async function downloadFromUri(
+  uri: string,
+  destination: string,
+): Promise<void> {
+  if (uri.startsWith("data:")) {
+    // Inline base64 — decode and write directly
+    const match = uri.match(/^data:.*?;base64,(.+)$/);
+    if (!match) throw new Error("Bad data URI for clip.");
+    await fs.writeFile(destination, Buffer.from(match[1]!, "base64"));
+    return;
+  }
+
+  // SSRF protection: validate URL before fetching
+  if (!isSafeUrl(uri)) {
+    throw new Error(`Unsafe URL blocked (SSRF protection): ${uri}`);
+  }
+
+  // Remote URL — fetch with size limit
+  const response = await fetch(uri);
+  if (!response.ok)
+    throw new Error(`Clip download failed (${response.status}): ${uri}`);
+
+  // Content-length guard (50MB max per clip)
+  const contentLength = response.headers.get("content-length");
+  if (contentLength && parseInt(contentLength, 10) > 50 * 1024 * 1024) {
+    throw new Error(`Clip too large: ${contentLength} bytes (max 50MB)`);
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  await fs.writeFile(destination, buffer);
+}
+
+// Download all clip URIs to a temp directory
+export async function stageClipFiles(input: {
+  clipUris: string[];
+  workingDir?: string;
+}): Promise<{ directory: string; clipPaths: string[] }> {
+  const dir =
+    input.workingDir ??
+    (await fs.mkdtemp(path.join(os.tmpdir(), "xai-render-")));
+  const clipPaths: string[] = [];
+
+  for (let i = 0; i < input.clipUris.length; i += 1) {
+    const dest = path.join(dir, `clip-${i + 1}.mp4`);
+    await downloadFromUri(input.clipUris[i]!, dest);
+    clipPaths.push(dest);
+  }
+
+  return { directory: dir, clipPaths };
+}
+
+// Concatenate clips into one file using ffmpeg
+export async function concatClips(input: {
+  clipPaths: string[];
+  clipDurationsSeconds: number[];
+  aspectRatio: "1:1" | "16:9" | "9:16";
+  resolution: "480p" | "720p";
+  outputPath: string;
+  workingDir: string;
+}): Promise<void> {
+  const fps = 30;
+  const dimensions = resolveRenderDimensions({
+    resolution: input.resolution,
+    aspectRatio: input.aspectRatio,
+  });
+  const clipProps = input.clipPaths.map((clipPath, index) => ({
+    src: pathToFileURL(clipPath).toString(),
+    durationInFrames: Math.max(
+      1,
+      Math.round((input.clipDurationsSeconds[index] ?? 1) * fps),
+    ),
+  }));
+
+  const serveUrl = await getRemotionServeUrl();
+  const { selectComposition, renderMedia } = await import("@remotion/renderer");
+  const { REMOTION_STITCH_COMPOSITION_ID } = await import("../remotion/Root");
+  const inputProps = {
+    clips: clipProps,
+    fps,
+    width: dimensions.width,
+    height: dimensions.height,
+  };
+
+  const composition = await selectComposition({
+    serveUrl,
+    id: REMOTION_STITCH_COMPOSITION_ID,
+    inputProps,
+    logLevel: "error",
+  });
+
+  await renderMedia({
+    serveUrl,
+    composition,
+    inputProps,
+    codec: "h264",
+    muted: true,
+    overwrite: true,
+    outputLocation: input.outputPath,
+    logLevel: "error",
+    chromiumOptions: {
+      gl: "swiftshader",
+    },
+    licenseKey: null,
+  });
+}
+
+// Extract first frame as JPEG thumbnail
+export async function generateThumbnail(input: {
+  videoPath: string;
+  outputPath: string;
+  workingDir: string;
+}): Promise<void> {
+  const env = getVideoServiceEnv();
+  await runCommand(
+    env.FFMPEG_PATH,
+    [
+      "-y",
+      "-ss",
+      "1",
+      "-i",
+      input.videoPath,
+      "-frames:v",
+      "1",
+      input.outputPath,
+    ],
+    input.workingDir,
+  );
+}
+
+// Get S3 client if credentials are present
+function getS3Client(): S3Client | null {
+  const env = getVideoServiceEnv();
+  if (!env.S3_ENDPOINT || !env.S3_ACCESS_KEY_ID || !env.S3_SECRET_ACCESS_KEY)
+    return null;
+  return new S3Client({
+    endpoint: env.S3_ENDPOINT,
+    region: env.S3_REGION,
+    credentials: {
+      accessKeyId: env.S3_ACCESS_KEY_ID,
+      secretAccessKey: env.S3_SECRET_ACCESS_KEY,
+    },
+    forcePathStyle: true, // required for Supabase S3
+  });
+}
+
+// Build public URL for an uploaded S3 object
+function buildS3PublicUrl(key: string): string {
+  const env = getVideoServiceEnv();
+  // Use explicit override if provided
+  if (env.S3_PUBLIC_URL)
+    return `${env.S3_PUBLIC_URL.replace(/\/+$/, "")}/${key}`;
+  // Auto-detect Supabase public URL pattern
+  const ref = env.S3_ENDPOINT?.match(/https:\/\/([^.]+)\.supabase\.co/)?.[1];
+  if (ref)
+    return `https://${ref}.supabase.co/storage/v1/object/public/${env.S3_BUCKET}/${key}`;
+  // Generic S3 fallback
+  return `${env.S3_ENDPOINT?.replace(/\/+$/, "")}/${env.S3_BUCKET}/${key}`;
+}
+
+// Upload a local file to S3, return its public URL
+export async function uploadLocalFile(input: {
+  localPath: string;
+  storagePath: string;
+  contentType: string;
+}): Promise<string> {
+  const s3 = getS3Client();
+  if (!s3) {
+    throw new Error(
+      "S3 not configured. Set S3_ENDPOINT, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY.",
+    );
+  }
+
+  const env = getVideoServiceEnv();
+  const data = await fs.readFile(input.localPath);
+
+  const upload = new Upload({
+    client: s3,
+    params: {
+      Bucket: env.S3_BUCKET,
+      Key: input.storagePath,
+      Body: data,
+      ContentType: input.contentType,
+    },
+    queueSize: 4,
+    partSize: 1024 * 1024 * 10, // 10MB parts
+  });
+
+  await upload.done();
+  return buildS3PublicUrl(input.storagePath);
+}
+
+// Generate a unique storage key for a render asset
+export function buildStoragePath(jobId: string, filename: string): string {
+  const uid = randomUUID().slice(0, 8);
+  return `video-renders/${jobId}/${uid}-${filename}`;
+}
+
+async function getRemotionServeUrl(): Promise<string> {
+  if (!remotionServeUrlPromise) {
+    remotionServeUrlPromise = (async () => {
+      const { bundle } = await import("@remotion/bundler");
+      const entryPoint = path.join(
+        process.cwd(),
+        "video-service",
+        "src",
+        "remotion",
+        "index.tsx",
+      );
+
+      return bundle(entryPoint);
+    })();
+  }
+
+  return remotionServeUrlPromise;
+}

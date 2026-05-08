@@ -1,0 +1,10 @@
+{
+  "tracks": [
+    { "file": "track-01.mp3", "title": "Track 01 (local /public/music)" },
+    { "file": "track-02.mp3", "title": "Track 02 (local /public/music)" },
+    {
+      "url": "https://your-project-ref.supabase.co/storage/v1/object/public/music/track-03.mp3",
+      "title": "Track 03 (S3 public URL)"
+    }
+  ]
+}

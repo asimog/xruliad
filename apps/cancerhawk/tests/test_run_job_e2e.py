@@ -1,0 +1,189 @@
+"""End-to-end regression for the user-triggered research job flow.
+
+This keeps OpenRouter and GitHub mocked, but exercises the public FastAPI
+entrypoint, persisted job card, completion events, and publish metadata shape.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+from unittest.mock import patch
+
+from fastapi.testclient import TestClient
+
+from app import jobs
+from app.main import app
+
+
+@dataclass
+class FakeResult:
+    title: str = "E2E CancerHawk Block"
+    market_price: float = 0.72
+    block: int = 7
+    result_url: str = "/results/block-7/paper.html"
+    stats: dict = None
+    calls: list = None
+    git_status: str = "hermes pushed block 7; deploy hook skipped"
+
+    def __post_init__(self):
+        self.stats = self.stats or {
+            "total_calls": 2,
+            "total_tokens": 300,
+            "total_cost_usd": 0.0012,
+            "elapsed_seconds": 4,
+        }
+        self.calls = self.calls or []
+
+
+class FakeSupervisor:
+    last_config = None
+
+    def __init__(self, *, emit, on_call, tracker):
+        self.emit = emit
+        self.on_call = on_call
+        self.tracker = tracker
+
+    async def run(self, cfg):
+        FakeSupervisor.last_config = cfg
+        await self.emit("paper_done", "Paper compiled", {"title": "E2E CancerHawk Block"})
+        await self.emit("publish_done", "Hermes wrote block 7 -> results/block-7", {"block": 7})
+        await self.emit("git", "hermes pushed block 7; deploy hook skipped", {"status": "ok"})
+        return FakeResult()
+
+
+def test_start_job_creates_live_card_and_completes(tmp_path):
+    test_jobs_file = tmp_path / "jobs.json"
+    payload = {
+        "api_key": "sk-test",
+        "research_goal": "Trace an end-to-end oncology block publish",
+        "n_submitters": 2,
+        "auto_publish": True,
+        "git_push": True,
+        "submitter": "openrouter/free",
+        "validator": "openrouter/free",
+        "compiler": "openrouter/free",
+        "archetype": "openrouter/free",
+        "topic_deriver": "openrouter/free",
+    }
+
+    with (
+        patch.object(jobs, "JOBS_FILE", test_jobs_file),
+        patch("app.main.HermesSupervisor", FakeSupervisor),
+    ):
+        client = TestClient(app)
+        response = client.post("/api/jobs/start", json=payload)
+        assert response.status_code == 200
+        job_id = response.json()["job_id"]
+
+        job_response = client.get(f"/api/jobs/{job_id}")
+        assert job_response.status_code == 200
+        job = job_response.json()
+
+    assert job["status"] == "completed"
+    assert job["research_goal"] == payload["research_goal"]
+    assert job["result"]["block"] == 7
+    assert job["result"]["result_url"] == "/results/block-7/paper.html"
+    assert "hermes pushed block 7" in job["result"]["git_status"]
+    stages = [event["stage"] for event in job["events"]]
+    assert stages[:2] == ["start", "hermes"]
+    assert "paper_done" in stages
+    assert "publish_done" in stages
+    assert "git" in stages
+    assert stages[-1] == "done"
+
+
+def test_start_job_parses_boolean_strings_and_persists_config(tmp_path):
+    test_jobs_file = tmp_path / "jobs.json"
+    payload = {
+        "api_key": "sk-test",
+        "research_goal": "Check string boolean parsing",
+        "n_submitters": "2",
+        "auto_publish": "false",
+        "git_push": "false",
+    }
+
+    with (
+        patch.object(jobs, "JOBS_FILE", test_jobs_file),
+        patch("app.main.HermesSupervisor", FakeSupervisor),
+    ):
+        client = TestClient(app)
+        response = client.post("/api/jobs/start", json=payload)
+        assert response.status_code == 200
+        job_id = response.json()["job_id"]
+        job = client.get(f"/api/jobs/{job_id}").json()
+
+    assert job["config"]["n_submitters"] == 2
+    assert job["config"]["auto_publish"] is False
+    assert job["config"]["git_push"] is False
+    assert FakeSupervisor.last_config.n_submitters == 2
+
+
+def test_start_job_persists_wallet_and_normalizes_models_to_free_router(tmp_path):
+    test_jobs_file = tmp_path / "jobs.json"
+    payload = {
+        "api_key": "sk-test",
+        "research_goal": "Wallet and free-router contract",
+        "n_submitters": 1,
+        "validator": "qwen/qwen3-coder:free",
+        "wallet_address": "0x1234567890abcdef1234567890abcdef12345678",
+        "wallet_chain": "base",
+    }
+
+    with (
+        patch.object(jobs, "JOBS_FILE", test_jobs_file),
+        patch("app.main.HermesSupervisor", FakeSupervisor),
+    ):
+        client = TestClient(app)
+        response = client.post("/api/jobs/start", json=payload)
+        assert response.status_code == 200
+        job_id = response.json()["job_id"]
+        job = client.get(f"/api/jobs/{job_id}").json()
+
+    assert job["config"]["wallet_address"] == payload["wallet_address"]
+    assert job["config"]["wallet_chain"] == "base"
+    assert job["config"]["models"]["validator"] == "openrouter/free"
+    assert FakeSupervisor.last_config.models["validator"] == "openrouter/free"
+
+
+def test_start_job_idempotency_key_returns_existing_job(tmp_path):
+    test_jobs_file = tmp_path / "jobs.json"
+    payload = {
+        "api_key": "sk-test",
+        "research_goal": "Deduplicate accidental double submit",
+        "n_submitters": 1,
+        "idempotency_key": "same-click",
+    }
+
+    with (
+        patch.object(jobs, "JOBS_FILE", test_jobs_file),
+        patch("app.main.HermesSupervisor", FakeSupervisor),
+    ):
+        client = TestClient(app)
+        first = client.post("/api/jobs/start", json=payload)
+        second = client.post("/api/jobs/start", json=payload)
+        listed = client.get("/api/jobs").json()["jobs"]
+
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert second.json()["deduped"] is True
+    assert second.json()["job_id"] == first.json()["job_id"]
+    assert len(listed) == 1
+
+
+def test_stop_job_marks_running_job_stopped(tmp_path):
+    test_jobs_file = tmp_path / "jobs.json"
+
+    with patch.object(jobs, "JOBS_FILE", test_jobs_file):
+        job = jobs.create_job(research_goal="Stop this run", config={})
+        jobs.update_job_status(job["job_id"], "running")
+        client = TestClient(app)
+
+        response = client.post(f"/api/jobs/{job['job_id']}/stop")
+        stopped = client.get(f"/api/jobs/{job['job_id']}").json()
+
+    assert response.status_code == 200
+    assert response.json()["stopped"] is True
+    assert stopped["status"] == "stopped"
+    assert stopped["error"] == "Stopped by user request."
+    assert stopped["events"][-1]["stage"] == "stopped"

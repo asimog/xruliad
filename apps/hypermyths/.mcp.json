@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "elizacloud": {
+      "url": "https://www.elizacloud.ai/api/mcp",
+      "headers": {
+        "Authorization": "Bearer ${ELIZA_API_KEY}"
+      }
+    }
+  }
+}

@@ -1,0 +1,2 @@
+ALTER TABLE "VideoRender"
+ADD COLUMN IF NOT EXISTS "request" JSONB;

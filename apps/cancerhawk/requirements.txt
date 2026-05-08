@@ -1,0 +1,7 @@
+# Safe default install for local CancerHawk development.
+#
+# Keep this file intentionally small. The local runner and tests should not
+# install the optional RAG/ML backend stack because those packages can pull in
+# large model/runtime dependencies and exhaust laptop memory.
+-r app/requirements.txt
+-r app/requirements-dev.txt

@@ -1,0 +1,28 @@
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  background: #070706;
+  color: #e9fff9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.polymyths-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1rem;
+}
+
+.polymyths-grid h2 {
+  margin: 0.8rem 0 0.4rem;
+  color: #fff;
+}
+
+.polymyths-grid p {
+  margin: 0;
+  color: rgba(233, 255, 249, 0.72);
+  line-height: 1.6;
+}

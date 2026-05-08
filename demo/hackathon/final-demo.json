@@ -1,0 +1,10 @@
+{
+  "prompt": "Create a market thesis, use the cheapest safe inference route, use QVAC for private reasoning if available, quote any paid APIs with pay.sh, seal the thesis, generate a HashMyth video script, create a Hypertian ad concept, and prepare a local-only trade intent without executing it.",
+  "runtimeMode": "web",
+  "qvac": "optional",
+  "webFeatures": ["terminal", "thesis", "video", "ads", "research", "display"],
+  "localOnly": ["trading execution", "user trading keys", "user-local pay.sh", "private strategy"],
+  "executionMode": "web_prepare_only",
+  "requiresApproval": true,
+  "liveExecutionFromWeb": false
+}

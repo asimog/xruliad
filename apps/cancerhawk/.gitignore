@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Node
+node_modules/
+.next/
+public/results/
+
+# Published CancerHawk blocks
+#
+# GitHub Pages deploys this directory as the public site root. Keep it
+# trackable so each completed block can be committed and displayed.
+!/results/
+!/results/**
+/results/staging/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/*.log
+.playwright-mcp/
+current_block_check.md
+vercel_check_snapshot.md
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+.vercel
+
+# Runtime-generated files
+jobs.json

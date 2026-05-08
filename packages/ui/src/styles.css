@@ -1,0 +1,147 @@
+.hmx-app-shell {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  color: #e9fff9;
+  font-family: var(--font-ui, Inter, sans-serif);
+}
+
+.hmx-layout {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+.hmx-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1.2rem 0;
+}
+
+.hmx-navbar__brand {
+  font-family: var(--font-display, monospace);
+  font-size: 2rem;
+  color: var(--ecosystem-accent, #49c5b6);
+}
+
+.hmx-navbar__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.hmx-navbar__links a,
+.hmx-orbital-cta,
+.hmx-button {
+  min-height: 2.35rem;
+  border: 1px solid color-mix(in srgb, var(--ecosystem-accent, #49c5b6) 44%, transparent);
+  border-radius: 0.5rem;
+  background: rgba(255,255,255,0.055);
+  color: #e9fff9;
+  padding: 0.65rem 0.9rem;
+  font: 700 0.82rem/1 var(--font-ui, sans-serif);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.hmx-hero {
+  display: grid;
+  align-content: center;
+  min-height: 76vh;
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 3rem 0;
+}
+
+.hmx-hero h1 {
+  max-width: 820px;
+  margin: 0;
+  color: #fff;
+  font-family: var(--font-display, monospace);
+  font-size: clamp(3.2rem, 9vw, 7rem);
+  font-weight: 400;
+  line-height: 0.88;
+}
+
+.hmx-hero p {
+  max-width: 680px;
+  margin: 1rem 0 1.4rem;
+  color: rgba(233,255,249,0.76);
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.hmx-card,
+.hmx-glass-panel {
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 0.5rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.018)), rgba(3,8,10,0.64);
+  box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+  padding: 1rem;
+}
+
+.hmx-section-frame {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 3rem 0;
+}
+
+.hmx-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 999px;
+  padding: 0.28rem 0.55rem;
+  color: var(--ecosystem-accent, #49c5b6);
+  font: 700 0.68rem/1 var(--font-mono, monospace);
+  text-transform: uppercase;
+}
+
+.hmx-input {
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 0.45rem;
+  background: rgba(0,0,0,0.4);
+  color: #fff;
+  padding: 0.7rem 0.8rem;
+}
+
+.hmx-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  background: rgba(0,0,0,0.66);
+}
+
+.hmx-modal__panel {
+  width: min(560px, calc(100% - 2rem));
+  border-radius: 0.5rem;
+  background: #071114;
+  padding: 1rem;
+}
+
+.hmx-footer {
+  position: relative;
+  z-index: 1;
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0;
+  color: rgba(233,255,249,0.55);
+  font-size: 0.82rem;
+}
+
+.hmx-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.hmx-toast {
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 0.5rem;
+  background: rgba(3,8,10,0.88);
+  padding: 0.8rem 1rem;
+}

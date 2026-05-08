@@ -1,0 +1,806 @@
+/* MythX Particle Engine Page */
+
+.mythx-page {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: clamp(5.5rem, 9vw, 7rem) clamp(1rem, 4vw, 3rem) clamp(5rem, 8vw, 7rem);
+}
+
+.mythx-music-shell {
+  position: relative;
+  z-index: 45;
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(220px, 0.78fr) minmax(320px, 1fr);
+  gap: clamp(1rem, 3vw, 2rem);
+  align-items: start;
+}
+
+.mythx-music-intro {
+  position: sticky;
+  top: 6rem;
+  display: grid;
+  gap: 0.75rem;
+  padding: clamp(1rem, 2vw, 1.4rem);
+  border-radius: 18px;
+  border: 1px solid rgba(73, 197, 182, 0.18);
+  background:
+    radial-gradient(circle at 25% 0%, rgba(39, 121, 167, 0.22), transparent 58%),
+    rgba(3, 6, 11, 0.72);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
+}
+
+.mythx-music-intro h1 {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.96);
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 0.9;
+  font-family: var(--font-display), var(--font-ui), sans-serif;
+  font-weight: 400;
+}
+
+.mythx-music-intro p:last-child {
+  margin: 0;
+  max-width: 34rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: clamp(0.92rem, 1.5vw, 1.05rem);
+  line-height: 1.55;
+}
+
+.mythx-canvas-container {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.mythx-canvas-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.mythx-youtube-host {
+  position: fixed;
+  left: -9999px;
+  top: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mythx-media-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 24rem 4rem;
+  pointer-events: none;
+}
+
+.mythx-media-shell {
+  position: relative;
+  width: min(54vw, 760px);
+  pointer-events: auto;
+  border-radius: 28px;
+  border: 1px solid rgba(73, 197, 182, 0.18);
+  background:
+    radial-gradient(circle at top, rgba(39, 121, 167, 0.3), transparent 55%),
+    rgba(6, 10, 16, 0.84);
+  box-shadow:
+    0 0 0 1px rgba(39, 121, 167, 0.12),
+    0 28px 72px rgba(0, 0, 0, 0.45),
+    0 0 120px rgba(39, 121, 167, 0.14);
+  backdrop-filter: blur(20px);
+  overflow: hidden;
+}
+
+.mythx-media-shell::before {
+  content: "";
+  position: absolute;
+  inset: -12%;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(39, 121, 167, 0.18), transparent 68%);
+  filter: blur(28px);
+  pointer-events: none;
+}
+
+.mythx-media-chrome {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1rem 0;
+}
+
+.mythx-media-eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(73, 197, 182, 0.86);
+}
+
+.mythx-media-chrome h2 {
+  margin-top: 0.4rem;
+  font-size: clamp(1.15rem, 2vw, 1.55rem);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.mythx-media-chrome p:last-child {
+  margin-top: 0.3rem;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.9rem;
+}
+
+.mythx-media-close,
+.mythx-primary-btn,
+.mythx-playlist-item,
+.mythx-transport-btn {
+  min-height: 44px;
+}
+
+.mythx-media-close {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.88);
+  padding: 0.65rem 1rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.mythx-media-close:hover,
+.mythx-media-close:focus-visible {
+  border-color: rgba(73, 197, 182, 0.55);
+  background: rgba(73, 197, 182, 0.14);
+  color: #fff;
+}
+
+.mythx-media-close:focus-visible,
+.mythx-primary-btn:focus-visible,
+.mythx-input:focus-visible,
+.mythx-select:focus-visible,
+.mythx-playlist-item:focus-visible,
+.mythx-transport-btn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px rgba(73, 197, 182, 0.9),
+    0 0 0 5px rgba(0, 0, 0, 0.45);
+}
+
+.mythx-media-stage {
+  position: relative;
+  z-index: 1;
+  margin: 1rem;
+  border-radius: 24px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0)),
+    rgba(0, 0, 0, 0.5);
+  aspect-ratio: 16 / 9;
+}
+
+.mythx-media-image,
+.mythx-media-video,
+.mythx-media-iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.mythx-media-image,
+.mythx-media-video {
+  object-fit: cover;
+}
+
+.mythx-controls {
+  position: relative;
+  z-index: 45;
+  width: 100%;
+  pointer-events: auto;
+}
+
+.mythx-card {
+  height: auto;
+  background: rgba(3, 6, 11, 0.85);
+  border: 1px solid rgba(39, 121, 167, 0.3);
+  border-radius: 18px;
+  padding: 1rem;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  overflow: visible;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mythx-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.mythx-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(73, 197, 182, 0.12);
+  border: 1px solid rgba(73, 197, 182, 0.3);
+  color: rgba(73, 197, 182, 0.94);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.mythx-card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--blue);
+  font-weight: 600;
+}
+
+.mythx-subtitle {
+  margin: 0.25rem 0 0.75rem;
+  font-size: 0.75rem;
+  color: rgba(39, 121, 167, 0.6);
+  letter-spacing: 0.05em;
+}
+
+.mythx-youtube-form {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.mythx-youtube-form label,
+.mythx-panel-label {
+  font-size: 0.7rem;
+  color: rgba(39, 121, 167, 0.8);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.mythx-youtube-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.6rem;
+}
+
+.mythx-input {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.32);
+  color: rgba(255, 255, 255, 0.94);
+  padding: 0.8rem 0.95rem;
+  font-size: 0.92rem;
+}
+
+.mythx-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.mythx-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  border-radius: 10px;
+  border: 1px solid rgba(73, 197, 182, 0.36);
+  background: rgba(73, 197, 182, 0.14);
+  color: rgba(255, 255, 255, 0.95);
+  padding: 0.7rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.mythx-inline-icon {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+}
+
+.mythx-player-panel {
+  border-color: rgba(73, 197, 182, 0.26);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(73, 197, 182, 0.18), transparent 64%),
+    rgba(255, 255, 255, 0.04);
+}
+
+.mythx-primary-btn:hover:not(:disabled) {
+  background: rgba(73, 197, 182, 0.22);
+  border-color: rgba(73, 197, 182, 0.58);
+}
+
+.mythx-primary-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.mythx-field-help {
+  color: rgba(255, 255, 255, 0.56);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.mythx-mic-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.mythx-mic-btn {
+  flex-shrink: 0;
+}
+
+.mythx-mic-btn--active {
+  background: rgba(73, 197, 182, 0.2);
+  border-color: rgba(73, 197, 182, 0.8);
+  color: #49c5b6;
+  animation: mythx-mic-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes mythx-mic-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+
+.mythx-dropzone {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 1rem;
+  padding: 1.1rem;
+  border-radius: 16px;
+  border: 1px dashed rgba(73, 197, 182, 0.36);
+  background:
+    radial-gradient(circle at top, rgba(39, 121, 167, 0.18), transparent 55%),
+    rgba(8, 14, 22, 0.7);
+  cursor: pointer;
+  min-height: 118px;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.mythx-dropzone .mythx-inline-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: rgba(73, 197, 182, 0.9);
+}
+
+.mythx-dropzone:hover,
+.mythx-dropzone.is-active {
+  border-color: rgba(73, 197, 182, 0.7);
+  background:
+    radial-gradient(circle at top, rgba(39, 121, 167, 0.28), transparent 58%),
+    rgba(10, 18, 28, 0.86);
+  transform: translateY(-1px);
+}
+
+.mythx-dropzone-eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(73, 197, 182, 0.86);
+}
+
+.mythx-dropzone strong {
+  color: rgba(255, 255, 255, 0.96);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.mythx-orb-note {
+  margin-top: 0.9rem;
+  color: rgba(73, 197, 182, 0.72);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.mythx-dropzone p {
+  color: rgba(255, 255, 255, 0.64);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.mythx-message {
+  margin-top: 0.9rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.mythx-message--error {
+  border-color: rgba(255, 113, 113, 0.28);
+  background: rgba(113, 14, 14, 0.18);
+  color: rgba(255, 212, 212, 0.95);
+}
+
+.mythx-resolved-panel {
+  margin-top: 0.9rem;
+  padding: 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(39, 121, 167, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+  display: grid;
+  gap: 0.85rem;
+}
+
+.mythx-card > .mythx-control-group,
+.mythx-card > .mythx-dropzone,
+.mythx-card > .mythx-youtube-form,
+.mythx-card > .mythx-message,
+.mythx-card > .mythx-resolved-panel,
+.mythx-card > .mythx-orb-note {
+  max-width: 100%;
+}
+
+.mythx-resolved-copy {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.mythx-resolved-copy strong {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.95rem;
+}
+
+.mythx-resolved-copy span {
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.8rem;
+}
+
+.mythx-now-playing {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 14px;
+  border: 1px solid rgba(73, 197, 182, 0.16);
+  background:
+    radial-gradient(circle at top, rgba(39, 121, 167, 0.16), transparent 62%),
+    rgba(6, 12, 18, 0.56);
+}
+
+.mythx-now-playing strong {
+  display: block;
+  margin-top: 0.22rem;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.95rem;
+}
+
+.mythx-now-playing span {
+  color: rgba(73, 197, 182, 0.9);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mythx-transport {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.mythx-transport-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.mythx-transport-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(73, 197, 182, 0.42);
+  background: rgba(73, 197, 182, 0.12);
+}
+
+.mythx-transport-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mythx-transport-btn--primary {
+  width: 58px;
+  height: 58px;
+  background:
+    radial-gradient(circle at top, rgba(39, 121, 167, 0.28), transparent 64%),
+    rgba(10, 18, 28, 0.92);
+  border-color: rgba(73, 197, 182, 0.36);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.26);
+}
+
+.mythx-transport-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.mythx-transport-btn--primary svg {
+  width: 22px;
+  height: 22px;
+}
+
+.mythx-playlist {
+  display: grid;
+  gap: 0.5rem;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.mythx-playlist-item {
+  width: 100%;
+  text-align: left;
+  padding: 0.8rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.mythx-playlist-item:hover {
+  transform: translateY(-1px);
+  border-color: rgba(73, 197, 182, 0.32);
+  background: rgba(73, 197, 182, 0.08);
+}
+
+.mythx-playlist-item.is-active {
+  border-color: rgba(73, 197, 182, 0.5);
+  background: rgba(73, 197, 182, 0.14);
+}
+
+.mythx-playlist-item strong,
+.mythx-playlist-item span {
+  display: block;
+}
+
+.mythx-playlist-item strong {
+  font-size: 0.85rem;
+}
+
+.mythx-playlist-item span {
+  margin-top: 0.2rem;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.56);
+}
+
+.mythx-control-group {
+  margin-top: 1rem;
+}
+
+.mythx-control-group label {
+  display: block;
+  font-size: 0.7rem;
+  color: rgba(39, 121, 167, 0.8);
+  margin-bottom: 0.35rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.mythx-select {
+  width: 100%;
+  background: rgba(39, 121, 167, 0.1);
+  color: var(--blue);
+  border: 1px solid rgba(39, 121, 167, 0.3);
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.mythx-select:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+.mythx-slider {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(39, 121, 167, 0.2);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.mythx-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--blue);
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.mythx-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--blue);
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.mythx-upload-section {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(39, 121, 167, 0.2);
+}
+
+.mythx-upload-section h4 {
+  margin: 0 0 0.5rem;
+  font-size: 0.7rem;
+  color: rgba(39, 121, 167, 0.8);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.mythx-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.25rem;
+  padding: 0.5rem 1rem;
+  background: rgba(39, 121, 167, 0.15);
+  border: 1px solid rgba(39, 121, 167, 0.3);
+  border-radius: 6px;
+  color: var(--blue);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mythx-upload-btn:hover {
+  background: rgba(39, 121, 167, 0.25);
+  border-color: var(--blue);
+}
+
+.mythx-upload-btn--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mythx-info {
+  margin-top: 0.75rem;
+  font-size: 0.7rem;
+  color: rgba(39, 121, 167, 0.5);
+  line-height: 1.4;
+}
+
+.mythx-page {
+  color: var(--teal);
+}
+
+.mythx-page :is(h1, h2, h3, h4, h5, h6, p, strong, span, label, button, input, select) {
+  color: var(--teal);
+}
+
+.mythx-page :is(input, select)::placeholder {
+  color: rgba(73, 197, 182, 0.42);
+}
+
+.mythx-message--error,
+.mythx-message--error * {
+  color: rgba(255, 212, 212, 0.95);
+}
+
+@media (max-width: 780px) {
+  .mythx-page {
+    padding: 5.25rem 0.85rem 6rem;
+  }
+
+  .mythx-music-shell {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .mythx-music-intro {
+    position: relative;
+    top: auto;
+    padding: 0.95rem;
+  }
+
+  .mythx-music-intro h1 {
+    font-size: 2.6rem;
+  }
+
+  .mythx-media-layer {
+    padding: 5.5rem 1rem 14rem;
+  }
+
+  .mythx-media-shell {
+    width: min(100%, 620px);
+  }
+
+  .mythx-controls {
+    width: 100%;
+  }
+
+  .mythx-card {
+    padding: 0.85rem;
+    border-radius: 16px;
+  }
+
+  .mythx-youtube-row {
+    grid-template-columns: 1fr;
+  }
+
+  .mythx-now-playing {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .mythx-transport {
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .mythx-transport-btn {
+    width: 52px;
+    height: 52px;
+  }
+
+  .mythx-transport-btn--primary {
+    width: 64px;
+    height: 64px;
+  }
+
+  .mythx-playlist {
+    max-height: none;
+  }
+
+  .mythx-upload-btn {
+    display: flex;
+    margin: 0.25rem 0;
+  }
+}

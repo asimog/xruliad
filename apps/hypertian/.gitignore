@@ -1,0 +1,18 @@
+.next
+node_modules
+coverage
+.env
+.env.local
+.env.*.local
+apphosting.local.yaml
+*.tsbuildinfo
+firebase-debug.log
+.vercel
+.mcp.json
+
+# Supabase CLI local artifacts
+supabase/.temp/
+supabase/.branches/
+
+# Quarantined legacy routes — kept locally for reference, not shipped.
+src/_legacy_app/

@@ -1,0 +1,32 @@
+{
+  "name": "@hypermyths/polymyths",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"No Polymyths tests yet\""
+  },
+  "dependencies": {
+    "@hypermyths/fonts": "workspace:*",
+    "@hypermyths/music-orb": "workspace:*",
+    "@hypermyths/product-api": "workspace:*",
+    "@hypermyths/theme": "workspace:*",
+    "@hypermyths/ui": "workspace:*",
+    "@hypermyths/unified-feed": "workspace:*",
+    "@hypermyths/visuals": "workspace:*",
+    "next": "16.1.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.25",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.9.3"
+  }
+}

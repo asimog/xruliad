@@ -1,0 +1,4 @@
+# Supabase Local / Cloud Config
+# Used with supabase CLI for local development
+
+project_id = "hypermyths"

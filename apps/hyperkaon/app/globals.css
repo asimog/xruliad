@@ -1,0 +1,28 @@
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  background: #020612;
+  color: #e9fff9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.hyperkaon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1rem;
+}
+
+.hyperkaon-grid h2 {
+  margin: 0.8rem 0 0.4rem;
+  color: #fff;
+}
+
+.hyperkaon-grid p {
+  margin: 0;
+  color: rgba(233, 255, 249, 0.72);
+  line-height: 1.6;
+}

@@ -1,0 +1,16 @@
+{
+  "simulations": [
+    {
+      "id": "custom-hyper-bloom",
+      "name": "Custom Hyper Bloom",
+      "physics": "Radial wave bloom with damped orbit feedback.",
+      "description": "External simulation profile loaded from JSON.",
+      "seedTag": "custom-hyper-bloom"
+    },
+    {
+      "name": "Custom Vortex Rain",
+      "physics": "Downward advection + curl impulse.",
+      "description": "Fast rain-like field with rotating drift."
+    }
+  ]
+}

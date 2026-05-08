@@ -1,0 +1,112 @@
+.ecosystem-background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 18%, var(--ecosystem-accent-soft), transparent 32%),
+    radial-gradient(circle at 78% 8%, rgba(134, 182, 255, 0.13), transparent 28%),
+    radial-gradient(circle at 50% 115%, rgba(12, 28, 32, 0.72), transparent 48%),
+    #030608;
+}
+
+.ecosystem-background--cancerhawk {
+  background:
+    radial-gradient(circle at 18% 16%, rgba(94, 234, 212, 0.13), transparent 30%),
+    radial-gradient(circle at 80% 10%, rgba(154, 230, 180, 0.1), transparent 26%),
+    linear-gradient(180deg, #020706, #000);
+}
+
+.ecosystem-background--hyperkaon {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(147, 197, 253, 0.18), transparent 30%),
+    radial-gradient(circle at 72% 30%, rgba(74, 222, 128, 0.09), transparent 30%),
+    #020612;
+}
+
+.ecosystem-background--polymyths {
+  background:
+    radial-gradient(circle at 18% 20%, rgba(245, 197, 66, 0.16), transparent 28%),
+    radial-gradient(circle at 76% 12%, rgba(73, 197, 182, 0.12), transparent 28%),
+    #070706;
+}
+
+.ecosystem-background__grid,
+.mythic-grid,
+.research-grid,
+.simulation-field,
+.attention-streams {
+  position: absolute;
+  inset: 0;
+  opacity: 0.2;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(circle at center, black, transparent 82%);
+}
+
+.ecosystem-background__orbital,
+.orbital-gradient,
+.animated-rings,
+.data-constellation {
+  position: absolute;
+  inset: 12%;
+  border: 1px solid color-mix(in srgb, var(--ecosystem-accent) 26%, transparent);
+  border-radius: 50%;
+  transform: rotate(-12deg);
+  box-shadow: 0 0 90px color-mix(in srgb, var(--ecosystem-accent) 20%, transparent);
+}
+
+.ecosystem-background__particles span {
+  position: absolute;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: var(--ecosystem-accent);
+  opacity: 0.42;
+  box-shadow: 0 0 22px var(--ecosystem-accent);
+}
+
+.ecosystem-background__particles span:nth-child(1) { left: 18%; top: 30%; }
+.ecosystem-background__particles span:nth-child(2) { right: 22%; top: 24%; }
+.ecosystem-background__particles span:nth-child(3) { left: 64%; bottom: 18%; }
+
+.ecosystem-background__noise,
+.noise-overlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0.08;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 3px);
+}
+
+.ecosystem-background--auto .ecosystem-background__orbital {
+  animation: ecosystem-orbit 28s linear infinite;
+}
+
+.ecosystem-background--high .ecosystem-background__particles span {
+  animation: ecosystem-drift 12s ease-in-out infinite alternate;
+}
+
+@keyframes ecosystem-orbit {
+  to { transform: rotate(348deg); }
+}
+
+@keyframes ecosystem-drift {
+  to { transform: translate3d(18px, -22px, 0) scale(1.18); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ecosystem-background *,
+  .ecosystem-background--auto .ecosystem-background__orbital,
+  .ecosystem-background--high .ecosystem-background__particles span {
+    animation: none !important;
+  }
+}
+
+.ecosystem-background--off *,
+.ecosystem-background--reduced * {
+  animation: none !important;
+}
