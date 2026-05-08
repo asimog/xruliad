@@ -10,6 +10,14 @@ import { quoteUserLocalRequest } from "@hypermyths/user-local-payments";
 import { createExecutionIntent, localTradingCapabilities, type ExecutionIntent } from "@hypermyths/local-trading";
 import { readByokConfig, validateKeyForStorage } from "@hypermyths/byok";
 import type { ProductId } from "@hypermyths/theme";
+import {
+  createJob, getJob, updateJob,
+  createFeedItem, createFeedEvent,
+  createPaymentReceipt, createInferenceReceipt,
+  createBeliefRecord, createBeliefUpdateRecord,
+  createModerationAction, createDisplayArtifact,
+  createWalletSpawnIntent
+} from "@hypermyths/supabase/persistence";
 
 const port = Number(process.env.PORT ?? 4200);
 const host = process.env.HOST ?? "0.0.0.0";
@@ -60,53 +68,55 @@ app.post("/agent/run", async (request, reply) => {
   return result;
 });
 
-app.post("/commands", async () => ({
-  id: crypto.randomUUID(),
-  status: "created",
-  message: "Command creation placeholder — Supabase persistence pending"
-}));
+app.post("/commands", async (request) => {
+  const body = request.body as Record<string, unknown> ?? {};
+  const persistence = await createJob({ productId: (body.productId as string) ?? "hypermyths", toolId: "command.create", status: "created", input: body });
+  return { id: crypto.randomUUID(), status: "created", persistence };
+});
 
-app.get("/commands/:id", async (request) => ({
-  id: (request.params as { id: string }).id,
-  status: "pending",
-  message: "Command status placeholder"
-}));
+app.get("/commands/:id", async (request) => {
+  const id = (request.params as { id: string }).id;
+  const persistence = await getJob(id);
+  return { id, status: "pending", persistence };
+});
 
-app.post("/commands/:id/run", async (request) => ({
-  id: (request.params as { id: string }).id,
-  status: "running",
-  message: "Command run placeholder"
-}));
+app.post("/commands/:id/run", async (request) => {
+  const id = (request.params as { id: string }).id;
+  const body = request.body as Record<string, unknown> ?? {};
+  const persistence = await updateJob(id, { status: "running", output: body });
+  return { id, status: "running", persistence };
+});
 
-app.post("/commands/:id/contribute", async (request) => ({
-  id: (request.params as { id: string }).id,
-  status: "contribution_received",
-  message: "Contribution placeholder"
-}));
+app.post("/commands/:id/contribute", async (request) => {
+  const id = (request.params as { id: string }).id;
+  const persistence = await updateJob(id, { status: "contribution_received" });
+  return { id, status: "contribution_received", persistence };
+});
 
-app.post("/theses", async () => ({
-  id: crypto.randomUUID(),
-  status: "created",
-  message: "Thesis creation placeholder"
-}));
+app.post("/theses", async (request) => {
+  const body = request.body as Record<string, unknown> ?? {};
+  const persistence = await createJob({ productId: (body.productId as string) ?? "polymyths", toolId: "thesis.create", status: "created", input: body });
+  return { id: crypto.randomUUID(), status: "created", persistence };
+});
 
-app.get("/theses/:id", async (request) => ({
-  id: (request.params as { id: string }).id,
-  status: "draft",
-  message: "Thesis status placeholder"
-}));
+app.get("/theses/:id", async (request) => {
+  const id = (request.params as { id: string }).id;
+  const persistence = await getJob(id);
+  return { id, status: "draft", persistence };
+});
 
-app.post("/theses/:id/run", async (request) => ({
-  id: (request.params as { id: string }).id,
-  status: "running",
-  message: "Thesis run placeholder"
-}));
+app.post("/theses/:id/run", async (request) => {
+  const id = (request.params as { id: string }).id;
+  const body = request.body as Record<string, unknown> ?? {};
+  const persistence = await updateJob(id, { status: "running", output: body });
+  return { id, status: "running", persistence };
+});
 
-app.post("/theses/:id/contribute", async (request) => ({
-  id: (request.params as { id: string }).id,
-  status: "contribution_received",
-  message: "Thesis contribution placeholder"
-}));
+app.post("/theses/:id/contribute", async (request) => {
+  const id = (request.params as { id: string }).id;
+  const persistence = await updateJob(id, { status: "contribution_received" });
+  return { id, status: "contribution_received", persistence };
+});
 
 app.post("/beliefs", async (request) => {
   const body = request.body as Record<string, unknown> ?? {};
@@ -121,7 +131,14 @@ app.post("/beliefs", async (request) => {
     status: "draft",
     metadata: {}
   });
-  return belief;
+  const persistence = await createBeliefRecord({
+    domain: belief.domain,
+    title: belief.title,
+    initialConfidence: belief.initialConfidence ?? 0.5,
+    visibility: belief.visibility,
+    sourceProduct: belief.sourceProduct ?? "polymyths"
+  });
+  return { ...belief, persistence };
 });
 
 app.get("/beliefs/:id", async (request) => ({
@@ -223,14 +240,15 @@ app.get("/beliefs/:id/timeline", async (request) => {
 
 app.post("/jobs", async (request) => {
   const body = request.body as Record<string, unknown> ?? {};
-  return { id: crypto.randomUUID(), status: "queued", input: body, createdAt: new Date().toISOString() };
+  const persistence = await createJob({ productId: (body.productId as string) ?? "hypermyths", toolId: (body.toolId as string) ?? "job.create", status: "queued", input: body });
+  return { id: crypto.randomUUID(), status: "queued", input: body, createdAt: new Date().toISOString(), persistence };
 });
 
-app.get("/jobs/:id", async (request) => ({
-  id: (request.params as { id: string }).id,
-  status: "queued",
-  createdAt: new Date().toISOString()
-}));
+app.get("/jobs/:id", async (request) => {
+  const id = (request.params as { id: string }).id;
+  const persistence = await getJob(id);
+  return { id, status: "queued", createdAt: new Date().toISOString(), persistence };
+});
 
 app.get("/feed", async () => {
   const items = ["video", "intelligence", "thesis"].map((t) =>
@@ -248,7 +266,7 @@ app.get("/feed", async () => {
 
 app.post("/feed", async (request) => {
   const body = request.body as Record<string, unknown> ?? {};
-  return normalizeFeedItem({
+  const item = normalizeFeedItem({
     source_product: (body.source_product as never) ?? "hypermyths",
     job_type: (body.job_type as never) ?? "thesis",
     title: String(body.title ?? "Feed Item"),
@@ -256,19 +274,39 @@ app.post("/feed", async (request) => {
     runtime_mode: "web",
     privacy_tier: "public"
   });
+  const persistence = await createFeedItem({
+    sourceProduct: (body.source_product as string) ?? "hypermyths",
+    jobType: (body.job_type as string) ?? "thesis",
+    title: String(body.title ?? "Feed Item"),
+    status: "queued",
+    runtimeMode: "web",
+    privacyTier: "public"
+  });
+  return { ...item, persistence };
 });
 
-app.post("/feed/events", async () => ({
-  id: crypto.randomUUID(),
-  event_type: "job_queued",
-  message: "Feed event placeholder"
-}));
+app.post("/feed/events", async (request) => {
+  const body = request.body as Record<string, unknown> ?? {};
+  const persistence = await createFeedEvent({
+    feedItemId: String(body.feedItemId ?? crypto.randomUUID()),
+    eventType: (body.eventType as string) ?? "job_queued",
+    safeMessage: String(body.safeMessage ?? body.message ?? "Feed event")
+  });
+  return { id: crypto.randomUUID(), event_type: "job_queued", persistence };
+});
 
-app.post("/feed/:id/moderate", async (request) => ({
-  id: (request.params as { id: string }).id,
-  action: "approved",
-  message: "Moderation placeholder"
-}));
+app.post("/feed/:id/moderate", async (request) => {
+  const id = (request.params as { id: string }).id;
+  const body = request.body as Record<string, unknown> ?? {};
+  const action = (body.action as "approve" | "reject" | "hide" | "flag") ?? "approve";
+  const persistence = await createModerationAction({
+    action,
+    targetType: "feed_item",
+    targetId: id,
+    reason: String(body.reason ?? "")
+  });
+  return { id, action, persistence };
+});
 
 app.post("/video/jobs", async (request) => {
   const body = request.body as Record<string, unknown> ?? {};
@@ -278,7 +316,13 @@ app.post("/video/jobs", async (request) => {
     source: (body.source as never) ?? "prompt",
     inputPayload: body.inputPayload as Record<string, unknown> ?? body
   });
-  return quoteHashMythVideo(job);
+  const quote = quoteHashMythVideo(job);
+  const persistence = await createDisplayArtifact({
+    jobId: job.id,
+    artifactType: "video_job",
+    metadata: { jobId: job.id, source: body.source }
+  });
+  return { ...quote, persistence };
 });
 
 app.post("/ads/jobs", async (request) => {
@@ -323,7 +367,15 @@ app.post("/payments/execute", async (request) => {
     action: (body.action as never) ?? "video_generation",
     estimatedCostUsd: Number(body.estimatedCostUsd ?? 0)
   });
-  return createPlatformReceipt(quote, true);
+  const receipt = createPlatformReceipt(quote, true);
+  const persistence = await createPaymentReceipt({
+    paymentPlane: "platform",
+    productId: (body.productId as string) ?? "hashmyth",
+    action: (body.action as string) ?? "video_generation",
+    estimatedCostUsd: Number(body.estimatedCostUsd ?? 0),
+    provider: "pay.sh"
+  });
+  return { ...receipt, persistence };
 });
 
 app.get("/admin/overview", async () => {
@@ -367,11 +419,14 @@ app.get("/admin/wallets", async () => ({
   count: 0
 }));
 
-app.post("/admin/wallets/spawn-intent", async () => ({
-  id: crypto.randomUUID(),
-  status: "intent_created",
-  requiresLocalSigning: true
-}));
+app.post("/admin/wallets/spawn-intent", async (request) => {
+  const body = request.body as Record<string, unknown> ?? {};
+  const persistence = await createWalletSpawnIntent({
+    walletType: (body.walletType as string) ?? "solana",
+    network: (body.network as string) ?? "devnet"
+  });
+  return { id: crypto.randomUUID(), status: "intent_created", requiresLocalSigning: true, persistence };
+});
 
 app.post("/setup/openrouter/test", async (request) => {
   const body = request.body as Record<string, unknown> ?? {};

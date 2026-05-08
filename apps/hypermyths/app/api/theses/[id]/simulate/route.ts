@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
-export function POST(_: Request, context: { params: { id: string } }) {
-  return NextResponse.json({ id: crypto.randomUUID(), thesisId: context.params.id, status: "prepared", simulationEngine: "MiroShark boundary" });
+export async function POST(_: Request, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
+  return NextResponse.json({ id: crypto.randomUUID(), thesisId: id, status: "prepared", simulationEngine: "MiroShark boundary" });
 }

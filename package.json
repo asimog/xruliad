@@ -70,7 +70,9 @@
     "openrouter:byok:test": "pnpm --filter @hypermyths/openrouter check",
     "paysh:simple:test": "pnpm --filter @hypermyths/byok check",
     "setup:check": "pnpm --filter @hypermyths/belief-engine test",
-    "rbm-belief-demo:check": "pnpm --filter @hypermyths/belief-engine test"
+    "rbm-belief-demo:check": "pnpm --filter @hypermyths/belief-engine test",
+    "deploy:check": "node scripts/deploy-check.mjs",
+    "execution:safety:test": "node scripts/execution-safety-test.mjs"
   },
   "devDependencies": {
     "turbo": "^2.6.1",

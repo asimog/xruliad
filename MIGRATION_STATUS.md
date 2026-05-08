@@ -73,3 +73,65 @@ Original folders were not deleted, overwritten, or intentionally mutated:
 - Env vars documented per app
 - Admin dashboard ready to mount
 - Local trading safety preserved
+
+## Verification Pass (2026-05-07)
+
+### Overall Status: YELLOW
+
+All core architecture verified. No critical blockers. Live integration requires credentials.
+
+### Verified Complete
+- HashMyth app exists, builds, has all 7 routes and 19 API endpoints
+- HyperMyths is terminal-first with correct metadata and 20+ routes
+- Hermes worker is a real Fastify HTTP server (435 lines, 40 endpoints)
+- OpenRouter package supports real API calls (chat, models, embeddings, cost tracking)
+- pay.sh platform/user-local separation with clear "requires_setup" when unconfigured
+- Theme has 6 ProductIds including hashmyth
+- Product-specific agent tools per product
+- Belief engine computes confidence correctly (40% → 55% → 47% → 50%)
+- Unified feed normalizes web/local items with privacy modes
+- Feed privacy generates encrypted actors, redacted content, commitment hashes
+- Local trading is strictly web_prepare_only with no live execution from web
+- Encrypt/Ika show honest "local fallback / devnet not configured" status
+- Final demo route shows all 11 sections correctly
+- Build: 82/82 targets pass
+- No real secrets committed (only false positives in build artifacts)
+
+### Verified Partial
+- Supabase persistence: migrations complete (10 files), but CRUD helpers limited to config check
+- Admin dashboard: package exists but not mounted in all 6 apps (only hashmyth and hypertian)
+- QVAC: health-check only, no live chat/embed calls from packages/qvac
+- Hermes worker: server starts but Supabase writes require live DB
+
+### Verified Missing
+- pnpm deploy:check script
+- pnpm execution:safety:test (execution package has no "check" script)
+- Full Supabase CRUD persistence helpers in persistence.ts
+
+### Pre-existing
+- hypercinema typecheck fails with Next.js 16 `.next/types` params-as-Promise errors (known, build skips TS)
+- Hypertian peer dependency warnings (inherited)
+- Turborepo Windows long-link warnings
+
+## Yellow Gap Fix (2026-05-07)
+
+### Changes Applied
+1. **Supabase persistence helpers**: Added `detectForbiddenSecretFields()` and `assertCloudSafePayload()` guards to `packages/supabase/src/persistence.ts`.
+2. **Hermes worker persistence wiring**: Added `@hypermyths/supabase` dependency. Wired 15+ persistence helpers to hermes worker endpoints. All endpoints return `persistence` field with clear ok/error status. Degraded gracefully when Supabase unconfigured.
+3. **Admin dashboard mounted**: Created `/admin` pages in polymyths, cancerhawk, and hyperkaon. All 6 apps now have admin pages (hashmyth and hypertian already had them).
+4. **QVAC chat/embed**: Added `qvacChat()` and `qvacEmbed()` to `packages/qvac`. QVAC check now reports chat/embed capabilities.
+5. **Hypercinema params fix**: Fixed 17 route files to use Next.js 16 `Promise<{ id }>` pattern with `await context.params`.
+6. **Root scripts**: Added `deploy:check` (19 checks) and `execution:safety:test` (25 safety checks). Added `"check"` script to `@hypermyths/execution`.
+7. **Encrypt/Ika env helpers**: Added `readEncryptConfig()`, `encryptStatus()`, `readIkaConfig()`, `ikaStatus()` with clear status typing.
+
+### Build: 82/82 PASS (confirmed 2026-05-07)
+
+### Validation
+- `pnpm deploy:check`: 19/19 PASS
+- `pnpm execution:safety:test`: 25/25 PASS
+- `pnpm --filter @hypermyths/hermes-worker build`: PASS
+- `pnpm qvac:check`: PASS (chat/embed reported)
+- `pnpm admin:check`: PASS
+- All existing checks remain passing
+
+### Detailed report: VERIFY_REPORT.md

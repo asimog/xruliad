@@ -1646,6 +1646,9 @@ importers:
       '@hypermyths/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime
+      '@hypermyths/supabase':
+        specifier: workspace:*
+        version: link:../../packages/supabase
       '@hypermyths/theme':
         specifier: workspace:*
         version: link:../../packages/theme
