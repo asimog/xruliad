@@ -1,0 +1,10 @@
+[build]
+provider = "dockerfile"
+dockerfile = "Dockerfile.hashmyth"
+
+[deploy]
+numReplicas = 1
+healthcheckPath = "/api/health"
+
+[deploy.restartPolicy]
+maxRetries = 3
