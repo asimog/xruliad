@@ -143,6 +143,14 @@ const envSchema = z.object({
   PAY_SH_SWEEP_ENABLED: z.coerce.boolean().default(false),
   PAY_SH_SOL_USD_RATE: z.coerce.number().positive().default(150),
 
+  // ── Pump x402 Compute Router — Community compute wallet subsystem ──
+  PUMP_COMPUTE_ENABLED: z.coerce.boolean().default(false),
+  PUMP_COMPUTE_DEFAULT_SUBSIDY_BPS: z.coerce.number().int().min(0).max(10000).default(0),
+  PUMP_COMPUTE_QUOTE_TTL_SECONDS: z.coerce.number().int().min(60).default(900),
+  PUMP_COMPUTE_PLATFORM_FEE_BPS: z.coerce.number().int().min(0).max(10000).default(0),
+  PUMP_COMPUTE_BUFFER_BPS: z.coerce.number().int().min(0).max(10000).default(0),
+  PUMP_COMPUTE_TOKEN_USD_TTL_MS: z.coerce.number().int().min(5000).default(30000),
+
   // ── Helius (Solana wallet history) ─────────────────────────────
   HELIUS_API_KEY: z.string().min(1).optional(),
   SOLANA_RPC_URL: z.string().url().optional(),
@@ -336,6 +344,12 @@ export function getEnv(): Env {
     PAY_SH_TREASURY_ADDRESS: trimOptionalEnvValue(process.env.PAY_SH_TREASURY_ADDRESS),
     PAY_SH_SWEEP_ENABLED: trimOptionalEnvValue(process.env.PAY_SH_SWEEP_ENABLED),
     PAY_SH_SOL_USD_RATE: trimOptionalEnvValue(process.env.PAY_SH_SOL_USD_RATE),
+    PUMP_COMPUTE_ENABLED: trimOptionalEnvValue(process.env.PUMP_COMPUTE_ENABLED),
+    PUMP_COMPUTE_DEFAULT_SUBSIDY_BPS: trimOptionalEnvValue(process.env.PUMP_COMPUTE_DEFAULT_SUBSIDY_BPS),
+    PUMP_COMPUTE_QUOTE_TTL_SECONDS: trimOptionalEnvValue(process.env.PUMP_COMPUTE_QUOTE_TTL_SECONDS),
+    PUMP_COMPUTE_PLATFORM_FEE_BPS: trimOptionalEnvValue(process.env.PUMP_COMPUTE_PLATFORM_FEE_BPS),
+    PUMP_COMPUTE_BUFFER_BPS: trimOptionalEnvValue(process.env.PUMP_COMPUTE_BUFFER_BPS),
+    PUMP_COMPUTE_TOKEN_USD_TTL_MS: trimOptionalEnvValue(process.env.PUMP_COMPUTE_TOKEN_USD_TTL_MS),
     HELIUS_API_KEY: trimOptionalEnvValue(process.env.HELIUS_API_KEY),
     SOLANA_RPC_URL: trimOptionalEnvValue(process.env.SOLANA_RPC_URL),
     SOLANA_DAS_RPC_URL: trimOptionalEnvValue(process.env.SOLANA_DAS_RPC_URL),

@@ -16,7 +16,10 @@ export type JobRequestKind =
   | "mythx"
   | "bedtime_story"
   | "music_video"
-  | "scene_recreation";
+  | "scene_recreation"
+  | "image_generation"
+  | "video_generation"
+  | "inference";
 
 export type CinemaPricingMode = "legacy" | "public" | "private";
 

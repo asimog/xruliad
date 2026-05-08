@@ -457,3 +457,100 @@ model PaymentCounter {
   nextIndex   BigInt   @default(0)
   updatedAt   DateTime @updatedAt
 }
+
+// ============================================================
+// COMMUNITY COMPUTE WALLET — Per-memecoin community compute fund
+// No private keys stored in Supabase — only public address + accounting
+// ============================================================
+model CommunityComputeWallet {
+  mint              String   @id  // SPL mint address
+  name              String
+  symbol            String
+  image             String?
+  description       String?
+  metadataUri       String?
+  socials           Json?    // { twitter?, telegram?, website?, discord? }
+  publicAddress     String   // Compute wallet public address (Base58)
+  acceptedJobTypes  Json     // string[]: "image_generation" | "video_generation" | "inference"
+  status            String   @default("active") // "active" | "paused" | "depleted" | "closed"
+  currentBalanceUsd Float    @default(0)
+  totalAllocatedUsd Float    @default(0)
+  totalSpentUsd     Float    @default(0)
+  spendLimitUsd     Float    @default(0)  // 0 = no limit
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  subsidyPolicy       CommunitySubsidyPolicy?
+  allocations         CommunityComputeAllocation[]
+  spends              CommunityComputeSpend[]
+}
+
+model CommunitySubsidyPolicy {
+  mint            String   @id
+  subsidyRateBps  Int      @default(0) // basis points: 5000 = 50%, 10000 = 100%
+  minimumWalletUsd Float   @default(0) // if wallet balance falls below, stop subsidizing
+  maxSubsidyPerJob Float   @default(0) // 0 = no per-job cap
+  updatedAt       DateTime @updatedAt
+
+  community CommunityComputeWallet @relation(fields: [mint], references: [mint], onDelete: Cascade)
+}
+
+model CommunityTokenPayment {
+  id               String   @id @default(cuid())
+  jobId            String
+  mint             String
+  payerAddress     String
+  signature        String   @unique
+  recipientAta     String
+  tokenAmount      BigInt   // raw token amount (with decimals)
+  tokenDecimals    Int
+  expectedUsd      Float
+  verified         Boolean  @default(false)
+  duplicateOf      String?  // if this sig was already used for another payment
+  errorMessage     String?
+  verifiedAt       DateTime?
+  createdAt        DateTime @default(now())
+
+  @@index([jobId])
+  @@index([mint])
+  @@index([payerAddress])
+  @@index([signature])
+  @@index([verified, createdAt(sort: Desc)])
+}
+
+model CommunityComputeAllocation {
+  id             String   @id @default(cuid())
+  mint           String
+  amountUsd      Float
+  depositTxHash  String?  // evidence tx signature
+  allocatedBy    String   // "admin" | "creator_fee" | "system"
+  note           String?
+  createdAt      DateTime @default(now())
+
+  community CommunityComputeWallet @relation(fields: [mint], references: [mint], onDelete: Cascade)
+
+  @@index([mint, createdAt(sort: Desc)])
+}
+
+model CommunityComputeSpend {
+  id              String   @id @default(cuid())
+  jobId           String
+  mint            String
+  endpointId      String
+  service         String
+  url             String
+  status          String   @default("pending") // "pending" | "ok" | "disabled" | "missing_cli" | "http_402" | "error" | "insufficient_wallet"
+  quotedUsd       Float
+  paidUsd         Float?
+  requestHash     String
+  responseDigest  String?
+  error           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  community CommunityComputeWallet @relation(fields: [mint], references: [mint], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([mint, createdAt(sort: Desc)])
+  @@index([endpointId, status])
+}

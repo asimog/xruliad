@@ -230,3 +230,113 @@ export async function verifySolPaymentSignature(input: {
 export function assertValidSolanaAddress(address: string): void {
   new PublicKey(address);
 }
+
+export function deriveAssociatedTokenAddress(mint: string, owner: string): string {
+  const mintKey = new PublicKey(mint);
+  const ownerKey = new PublicKey(owner);
+  const TOKEN_PROGRAM_ID = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
+  const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
+
+  const [ata] = PublicKey.findProgramAddressSync(
+    [ownerKey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mintKey.toBuffer()],
+    ASSOCIATED_TOKEN_PROGRAM_ID,
+  );
+
+  return ata.toBase58();
+}
+
+export type SplTokenTransferVerification = {
+  paidRawAmount: bigint;
+  mint: string;
+  decimals: number;
+  slot: number;
+  recipient: string;
+  sender: string;
+};
+
+export async function verifySplTokenTransfer(input: {
+  signature: string;
+  expectedSender: string;
+  expectedMint: string;
+  expectedRecipientAta: string;
+  minimumRawAmount: bigint;
+  expectedDecimals: number;
+}): Promise<SplTokenTransferVerification> {
+  const connection = getSolanaConnection();
+  const transaction = await connection.getParsedTransaction(input.signature, {
+    maxSupportedTransactionVersion: 0,
+    commitment: "confirmed",
+  });
+
+  if (!transaction) {
+    throw new Error("SPL token transfer transaction not found on Solana.");
+  }
+  if (transaction.meta?.err) {
+    throw new Error("SPL token transfer transaction failed on Solana.");
+  }
+
+  const feePayer = transaction.transaction.message.accountKeys[0];
+  const feePayerAddress = feePayer?.pubkey.toBase58() ?? "";
+  if (feePayerAddress !== input.expectedSender) {
+    throw new Error("Submitted transaction was not signed by the expected sender wallet.");
+  }
+
+  let foundTransfer = false;
+  let paidRawAmount = BigInt(0);
+  let transferMint = "";
+  let transferDecimals = 0;
+  let transferDestination = "";
+
+  for (const instruction of transaction.transaction.message.instructions) {
+    if ("parsed" in instruction) {
+      const parsed = (instruction as { parsed: {
+        type?: string; info?: Record<string, unknown>;
+      } }).parsed;
+      if (parsed?.type === "transferChecked" || parsed?.type === "transfer") {
+        const info = parsed.info ?? {};
+        const mint = typeof info.mint === "string" ? info.mint : "";
+        const source = typeof info.source === "string" ? info.source : (typeof info.authority === "string" ? info.authority : "");
+        const destination = typeof info.destination === "string" ? info.destination : "";
+        const amount = typeof info.tokenAmount === "object" && info.tokenAmount !== null
+          ? (info.tokenAmount as { amount: string }).amount
+          : typeof info.amount === "string" ? info.amount : "0";
+        const decimals = typeof info.tokenAmount === "object" && info.tokenAmount !== null
+          ? (info.tokenAmount as { decimals: number }).decimals
+          : 0;
+
+        if (destination === input.expectedRecipientAta && mint === input.expectedMint) {
+          foundTransfer = true;
+          paidRawAmount = BigInt(amount);
+          transferMint = mint;
+          transferDecimals = decimals;
+          transferDestination = destination;
+        }
+      }
+    }
+  }
+
+  if (!foundTransfer) {
+    throw new Error("No SPL token transfer to the expected recipient ATA found in this transaction.");
+  }
+
+  if (paidRawAmount < input.minimumRawAmount) {
+    throw new Error(
+      `SPL token payment too low: received ${paidRawAmount}, need at least ${input.minimumRawAmount}.`,
+    );
+  }
+
+  if (transferDecimals !== input.expectedDecimals) {
+    throw new Error(
+      `SPL token decimals mismatch: expected ${input.expectedDecimals}, got ${transferDecimals}.`,
+    );
+  }
+
+  return {
+    paidRawAmount,
+    mint: transferMint,
+    decimals: transferDecimals,
+    slot: transaction.slot,
+    recipient: transferDestination,
+    sender: input.expectedSender,
+  };
+}

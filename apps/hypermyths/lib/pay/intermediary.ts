@@ -8,8 +8,8 @@ import { getPayShEndpoint, payShEndpointUrl, type PayShEndpointId } from "@/lib/
 import { payShPostJson, type PayShJsonResult } from "@/lib/pay/client";
 import type { JobDocument, JobRequestKind } from "@/lib/types/domain";
 
-export type PayShRail = "solana_sol" | "x402_usdc";
-export type PayShWorkKind = "asset_scan" | "video_generation";
+export type PayShRail = "solana_sol" | "x402_usdc" | "pump_spl_subsidized";
+export type PayShWorkKind = "asset_scan" | "video_generation" | "image_generation" | "inference";
 
 export type PayShOperation = {
   endpointId: PayShEndpointId;
