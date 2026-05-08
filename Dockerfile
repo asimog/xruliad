@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN pnpm install --no-frozen-lockfile --filter @hypermyths/hashmyth
+RUN pnpm install --no-frozen-lockfile
 RUN pnpm --filter @hypermyths/hashmyth build
 
 FROM node:22-alpine AS runner
