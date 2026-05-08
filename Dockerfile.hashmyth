@@ -17,4 +17,4 @@ COPY --from=builder /app/apps/hashmyth/.next/static ./apps/hashmyth/.next/static
 COPY --from=builder /app/apps/hashmyth/public ./apps/hashmyth/public
 
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["node", "apps/hashmyth/server.js"]

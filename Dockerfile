@@ -5,16 +5,16 @@ WORKDIR /app
 COPY . .
 
 RUN pnpm install --no-frozen-lockfile
-RUN pnpm --filter @hypermyths/hashmyth build
+RUN pnpm --filter @hypermyths/polymyths build
 
 FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 
-COPY --from=builder /app/apps/hashmyth/.next/standalone ./
-COPY --from=builder /app/apps/hashmyth/.next/static ./apps/hashmyth/.next/static
-COPY --from=builder /app/apps/hashmyth/public ./apps/hashmyth/public
+COPY --from=builder /app/apps/polymyths/.next/standalone ./
+COPY --from=builder /app/apps/polymyths/.next/static ./apps/polymyths/.next/static
+COPY --from=builder /app/apps/polymyths/public ./apps/polymyths/public
 
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["node", "apps/polymyths/server.js"]
