@@ -75,6 +75,7 @@
     "execution:safety:test": "node scripts/execution-safety-test.mjs"
   },
   "devDependencies": {
+    "next": "^16.1.6",
     "turbo": "^2.6.1",
     "typescript": "^5.9.3",
     "tsx": "^4.20.6"

@@ -1,0 +1,14 @@
+{
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "cd services/hermes-worker && npm install && npm run build"
+  },
+  "deploy": {
+    "startCommand": "cd services/hermes-worker && node dist/index.js",
+    "healthcheckPath": "/health",
+    "restartPolicy": {
+      "maxRetries": 3
+    },
+    "numReplicas": 1
+  }
+}
