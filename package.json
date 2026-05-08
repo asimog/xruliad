@@ -72,7 +72,15 @@
     "setup:check": "pnpm --filter @hypermyths/belief-engine test",
     "rbm-belief-demo:check": "pnpm --filter @hypermyths/belief-engine test",
     "deploy:check": "node scripts/deploy-check.mjs",
-    "execution:safety:test": "node scripts/execution-safety-test.mjs"
+    "execution:safety:test": "node scripts/execution-safety-test.mjs",
+    "docker:build:hashmyth": "docker build -f apps/hashmyth/Dockerfile -t hypermyths-hashmyth .",
+    "docker:build:polymyths": "docker build -f apps/polymyths/Dockerfile -t hypermyths-polymyths .",
+    "docker:build:hyperkaon": "docker build -f apps/hyperkaon/Dockerfile -t hypermyths-hyperkaon .",
+    "docker:build:hypertian": "docker build -f apps/hypertian/Dockerfile -t hypermyths-hypertian .",
+    "docker:build:hypermyths": "docker build -f apps/hypermyths/Dockerfile.web -t hypermyths-terminal .",
+    "docker:build:hermes": "docker build -f services/hermes-worker/Dockerfile -t hypermyths-hermes .",
+    "docker:build:all": "pnpm docker:build:hashmyth && pnpm docker:build:polymyths && pnpm docker:build:hyperkaon && pnpm docker:build:hypertian && pnpm docker:build:hypermyths && pnpm docker:build:hermes",
+    "railway:deploy:all": "bash scripts/railway-deploy-all.sh"
   },
   "devDependencies": {
     "next": "^16.1.6",

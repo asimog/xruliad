@@ -1,0 +1,182 @@
+name: Build & Deploy Docker Images
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      hashmyth: ${{ steps.filter.outputs.hashmyth }}
+      polymyths: ${{ steps.filter.outputs.polymyths }}
+      hyperkaon: ${{ steps.filter.outputs.hyperkaon }}
+      hypertian: ${{ steps.filter.outputs.hypertian }}
+      hypermyths: ${{ steps.filter.outputs.hypermyths }}
+      hermes: ${{ steps.filter.outputs.hermes }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            hashmyth:
+              - 'apps/hashmyth/**'
+              - 'packages/**'
+              - 'pnpm-lock.yaml'
+            polymyths:
+              - 'apps/polymyths/**'
+              - 'packages/**'
+              - 'pnpm-lock.yaml'
+            hyperkaon:
+              - 'apps/hyperkaon/**'
+              - 'packages/**'
+              - 'pnpm-lock.yaml'
+            hypertian:
+              - 'apps/hypertian/**'
+              - 'packages/**'
+            hypermyths:
+              - 'apps/hypermyths/**'
+              - 'packages/**'
+              - 'services/**'
+              - 'pnpm-lock.yaml'
+            hermes:
+              - 'services/hermes-worker/**'
+              - 'packages/**'
+              - 'pnpm-lock.yaml'
+
+  build-hashmyth:
+    needs: changes
+    if: ${{ needs.changes.outputs.hashmyth == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/hashmyth/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/hashmyth:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-polymyths:
+    needs: changes
+    if: ${{ needs.changes.outputs.polymyths == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/polymyths/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/polymyths:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-hyperkaon:
+    needs: changes
+    if: ${{ needs.changes.outputs.hyperkaon == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/hyperkaon/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/hyperkaon:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-hypertian:
+    needs: changes
+    if: ${{ needs.changes.outputs.hypertian == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/hypertian/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/hypertian:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-hypermyths:
+    needs: changes
+    if: ${{ needs.changes.outputs.hypermyths == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/hypermyths/Dockerfile.web
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/hypermyths:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-hermes:
+    needs: changes
+    if: ${{ needs.changes.outputs.hermes == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: services/hermes-worker/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/hermes-worker:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

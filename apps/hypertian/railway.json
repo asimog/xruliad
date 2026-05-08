@@ -1,0 +1,13 @@
+{
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "apps/hypertian/Dockerfile"
+  },
+  "deploy": {
+    "numReplicas": 1,
+    "healthcheckPath": "/api/health",
+    "restartPolicy": {
+      "maxRetries": 3
+    }
+  }
+}
