@@ -1,2 +1,14 @@
 import { readUserLocalPaymentStatus } from "@hypermyths/user-local-payments";
-console.log(JSON.stringify({ gateway: "local-payments", endpoints: ["GET /health", "GET /capabilities", "GET /spend-policy", "POST /quote", "POST /approve", "POST /execute-paid-request", "GET /receipts", "GET /receipts/:id"], status: readUserLocalPaymentStatus() }, null, 2));
+import { startServiceRuntime } from "@hypermyths/service-runtime";
+
+startServiceRuntime({
+  service: "local-payments-gateway",
+  role: "Local-only user pay.sh/x402 payment gateway. Do not expose publicly.",
+  publicSurface: "local_only",
+  endpoints: ["GET /health", "GET /capabilities", "GET /spend-policy"],
+  capabilities: () => ({ status: readUserLocalPaymentStatus() }),
+  routes: {
+    "GET /spend-policy": () => readUserLocalPaymentStatus()
+  },
+  defaultPort: 8791
+});

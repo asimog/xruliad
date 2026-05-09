@@ -1,7 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "installCommand": "npm install --legacy-peer-deps",
+  "installCommand": "corepack enable pnpm && pnpm install --no-frozen-lockfile",
+  "buildCommand": "pnpm --filter hypertian build",
+  "outputDirectory": "apps/hypertian/.next",
   "functions": {
     "src/app/api/**/*.ts": {
       "maxDuration": 60

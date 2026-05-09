@@ -1,7 +1,7 @@
 import http from "node:http";
 import { readQvacStatus, qvacHealth } from "@hypermyths/qvac";
 
-const PORT = Number(process.env.QVAC_GATEWAY_PORT ?? 8787);
+const PORT = Number(process.env.PORT ?? process.env.QVAC_GATEWAY_PORT ?? 8787);
 const OLLAMA_BASE = process.env.QVAC_BASE_URL ?? "http://localhost:11434/v1";
 
 const server = http.createServer(async (req, res) => {

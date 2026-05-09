@@ -1,27 +1,11 @@
-FROM node:22-alpine AS builder
+FROM node:22-alpine
 RUN corepack enable && corepack prepare pnpm@10.11.0 --activate
 WORKDIR /app
-
-COPY pnpm-lock.yaml pnpm-workspace.yaml .npmrc package.json turbo.json ./
-
-COPY services/hermes-worker/package.json services/hermes-worker/
-COPY packages/ packages/
-
-RUN pnpm install --frozen-lockfile --filter @hypermyths/hermes-worker
-
-COPY services/hermes-worker/ services/hermes-worker/
-COPY packages/ packages/
-
+COPY . .
+RUN pnpm install --no-frozen-lockfile
 RUN pnpm --filter @hypermyths/hermes-worker build
-
-FROM node:22-alpine AS runner
-WORKDIR /app
 ENV NODE_ENV=production
-ENV PORT=4200
-
-COPY --from=builder /app/node_modules/.pnpm /app/node_modules/.pnpm
-COPY --from=builder /app/services/hermes-worker/package.json ./package.json
-COPY --from=builder /app/services/hermes-worker/dist ./dist
-
+ENV DEPLOYMENT_TARGET=railway
+ENV APP_RUNTIME_MODE=web
 EXPOSE 4200
-CMD ["node", "dist/index.js"]
+CMD ["pnpm", "--filter", "@hypermyths/hermes-worker", "start"]

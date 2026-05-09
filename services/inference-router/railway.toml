@@ -1,0 +1,10 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "services/inference-router/Dockerfile"
+
+[deploy]
+numReplicas = 1
+healthcheckPath = "/health"
+
+[deploy.restartPolicy]
+maxRetries = 3

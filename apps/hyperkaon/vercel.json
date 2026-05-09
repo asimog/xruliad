@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "buildCommand": "cd ../.. && pnpm --filter @hypermyths/hyperkaon build",
-  "installCommand": "cd ../.. && pnpm install --no-frozen-lockfile",
-  "outputDirectory": ".next"
+  "installCommand": "corepack enable pnpm && pnpm install --no-frozen-lockfile",
+  "buildCommand": "pnpm --filter @hypermyths/hyperkaon build",
+  "outputDirectory": "apps/hyperkaon/.next"
 }

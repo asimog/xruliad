@@ -1,6 +1,6 @@
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
+dockerfilePath = "services/hermes-worker/Dockerfile"
 
 [deploy]
 numReplicas = 1

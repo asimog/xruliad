@@ -5,16 +5,16 @@ WORKDIR /app
 COPY . .
 
 RUN pnpm install --no-frozen-lockfile
-RUN pnpm --filter @hypermyths/polymyths build
+RUN pnpm --filter @hypermyths/hyperkaon build
 
 FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 
-COPY --from=builder /app/apps/polymyths/.next/standalone ./
-COPY --from=builder /app/apps/polymyths/.next/static ./apps/polymyths/.next/static
-COPY --from=builder /app/apps/polymyths/public ./apps/polymyths/public
+COPY --from=builder /app/apps/hyperkaon/.next/standalone ./
+COPY --from=builder /app/apps/hyperkaon/.next/static ./apps/hyperkaon/.next/static
+COPY --from=builder /app/apps/hyperkaon/public ./apps/hyperkaon/public
 
 EXPOSE 3000
-CMD ["node", "apps/polymyths/server.js"]
+CMD ["node", "apps/hyperkaon/server.js"]

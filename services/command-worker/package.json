@@ -1,1 +1,22 @@
-{"name":"@hypermyths/command-worker","version":"0.1.0","private":true,"type":"module","scripts":{"build":"tsc -p tsconfig.json","lint":"tsc -p tsconfig.json --noEmit","typecheck":"tsc -p tsconfig.json --noEmit","start":"tsx src/index.ts"},"dependencies":{"@hypermyths/command-protocol":"workspace:*","@hypermyths/thesis-engine":"workspace:*"},"devDependencies":{"@types/node":"^20.19.25","typescript":"^5.9.3","tsx":"^4.20.6"}}
+{
+  "name": "@hypermyths/command-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@hypermyths/command-protocol": "workspace:*",
+    "@hypermyths/thesis-engine": "workspace:*",
+    "@hypermyths/service-runtime": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.25",
+    "typescript": "^5.9.3",
+    "tsx": "^4.20.6"
+  }
+}
