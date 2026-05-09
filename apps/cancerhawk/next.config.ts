@@ -1,3 +1,4 @@
+import path from 'node:path';
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
@@ -8,7 +9,11 @@ const nextConfig: NextConfig = {
     "@hypermyths/ui",
     "@hypermyths/visuals",
   ],
-  outputFileTracingRoot: __dirname,
+  outputFileTracingRoot: path.join(__dirname, '../..'),
+  outputFileTracingIncludes: {
+    '/api/*': ['node_modules/next/dist/compiled/source-map/**/*'],
+    '/api/**/*': ['node_modules/next/dist/compiled/source-map/**/*'],
+  },
   async headers() {
     return [
       {
