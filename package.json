@@ -83,7 +83,7 @@
     "railway:deploy:all": "bash scripts/railway-deploy-all.sh"
   },
   "devDependencies": {
-    "next": "^16.1.6",
+    "next": "16.1.6",
     "turbo": "^2.6.1",
     "typescript": "^5.9.3",
     "tsx": "^4.20.6"
