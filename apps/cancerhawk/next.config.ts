@@ -11,8 +11,12 @@ const nextConfig: NextConfig = {
   ],
   outputFileTracingRoot: path.join(__dirname, '../..'),
   outputFileTracingIncludes: {
-    '/api/*': ['node_modules/next/dist/compiled/source-map/**/*'],
-    '/api/**/*': ['node_modules/next/dist/compiled/source-map/**/*'],
+    '/api/*': [
+      '../../node_modules/.pnpm/next@16.1.6*/node_modules/next/dist/compiled/source-map/**/*',
+    ],
+    '/api/**/*': [
+      '../../node_modules/.pnpm/next@16.1.6*/node_modules/next/dist/compiled/source-map/**/*',
+    ],
   },
   async headers() {
     return [
