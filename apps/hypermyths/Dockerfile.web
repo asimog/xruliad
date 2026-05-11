@@ -29,7 +29,6 @@ COPY --from=builder /app/apps/hypermyths/.next/standalone ./
 COPY --from=builder /app/apps/hypermyths/.next/static ./apps/hypermyths/.next/static
 COPY --from=builder /app/apps/hypermyths/public ./apps/hypermyths/public
 COPY --from=builder /app/apps/hypermyths/prisma ./prisma
-COPY --from=builder /app/node_modules/.pnpm/prisma@* /tmp/prisma_dep 2>/dev/null || true
 
 EXPOSE 3000
 CMD ["node", "server.js"]

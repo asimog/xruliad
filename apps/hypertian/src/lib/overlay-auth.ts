@@ -14,13 +14,13 @@ export function createOverlayHeartbeatKey(streamId: string) {
 }
 
 export function verifyOverlayHeartbeatKey(streamId: string, providedKey: string) {
-  if (!providedKey) {
+  if (!providedKey || !/^[a-f0-9]{64}$/i.test(providedKey)) {
     return false;
   }
 
   const expectedKey = createOverlayHeartbeatKey(streamId);
-  const expected = Buffer.from(expectedKey);
-  const received = Buffer.from(providedKey);
+  const expected = Buffer.from(expectedKey, 'hex');
+  const received = Buffer.from(providedKey, 'hex');
 
   if (expected.length !== received.length) {
     return false;

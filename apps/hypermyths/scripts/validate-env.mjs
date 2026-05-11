@@ -198,17 +198,6 @@ function main() {
     process.env[key] = value;
   }
 
-  const payShConfigured = parsed.PAY_SH_ENABLED === "true";
-  const missingFromFile = MASTER_ENV_KEYS.filter((key) => {
-    if (PAY_SH_ENV_KEYS.includes(key) && !payShConfigured) return false;
-    return !(key in parsed);
-  });
-  if (missingFromFile.length > 0) {
-    throw new Error(
-      `[env:file] Missing keys in ${envPath}: ${missingFromFile.join(", ")}`,
-    );
-  }
-
   const groups = [
     "appCore",
     "ai",

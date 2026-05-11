@@ -39,7 +39,7 @@
     "command-protocol:test": "pnpm --filter @hypermyths/command-protocol test",
     "thesis-engine:test": "pnpm --filter @hypermyths/thesis-engine test",
     "local-trading:check": "pnpm --filter @hypermyths/local-trading check",
-    "execution:safety:test": "pnpm --filter @hypermyths/execution test",
+    "execution:package:test": "pnpm --filter @hypermyths/execution test",
     "encrypt:check": "pnpm --filter @hypermyths/encrypt check",
     "ika:check": "pnpm --filter @hypermyths/ika check",
     "display:test": "pnpm --filter @hypermyths/display test",
